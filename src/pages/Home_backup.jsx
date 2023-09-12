@@ -3,15 +3,11 @@ import { useField, Form } from "solid-js-form";
 import * as Yup from "yup";
 import { createEffect, createSignal } from "solid-js";
 import { state as counterState, increment } from "../stores/counterStore";
-import toast from "solid-toast";
-import Api from "@/axios/axios";
-import ApiNode from "@/axios/axiosNode";
-import { useNavigate } from "@solidjs/router";
+import toast, { Toaster } from "solid-toast";
 
 const Input = (props) => {
   const { field, form } = useField(props.name);
   const formHandler = form.formHandler;
-  const inputType = props.type || "text";
 
   return (
     <>
@@ -25,7 +21,6 @@ const Input = (props) => {
         </label>
         <input
           input
-          type={inputType} // Menggunakan jenis input yang sudah ditentukan
           name={props.name}
           value={field.value()}
           //@ts-ignore
@@ -41,28 +36,10 @@ const Input = (props) => {
   );
 };
 
-const fn_submit = async (values) => {
-  try {
-    const response = await Api.post("siswa/auth/login", {
-      email: values.username,
-      password: values.password,
-    });
-    // // Promise Toast
-    if (response.code === 200) {
-      const { token } = response;
-      localStorage.setItem("siswa_token", token);
-      localStorage.setItem("siswa_isLogin", true);
-    } else {
-      toast.error("Something went wrong!");
-    }
-    return true;
-  } catch (error) {
-    console.error(error);
-    toast.error("Something went wrong!");
-  }
-};
-
-const FormLogin = ({ navigateToDashboard }) => {
+const FormLogin = () => {
+  const fn_submit = (values) => {
+    console.log(values.username, values.password, "aaa");
+  };
   return (
     <>
       Form Login
@@ -74,16 +51,11 @@ const FormLogin = ({ navigateToDashboard }) => {
             password: Yup.string().required(),
           }}
           onSubmit={async (form) => {
-            // fn_submit(form.values);
-            const isSuccess = await fn_submit(form.values);
-            if (isSuccess) {
-              toast.success("Login Successfully!");
-              navigateToDashboard();
-            }
+            fn_submit(form.values);
           }}
         >
           <Input name="username" label="Username" />
-          <Input name="password" label="Password" type="password" />
+          <Input name="password" label="Password" />
           <button type="submit">Submit</button>
         </Form>
       </div>
@@ -103,15 +75,10 @@ createEffect(() => console.log("count =", count()));
 const Home = () => {
   const notify = () => toast.success("Here is your toast.");
   const [angka] = createSignal(() => counterState.count); //dari store
-
-  const navigate = useNavigate();
-  const navigateToDashboard = () => {
-    navigate("/siswa/dashboard", { replace: true });
-  };
   return (
     <>
       <button onClick={notify}>Make me a toast</button>
-      {/* <Toaster position="top-right" gutter={8} /> */}
+      <Toaster position="top-right" gutter={8} />
       <div>
         <p>Nilai Counter: {angka()}</p>
         <button onClick={increment}>Increment</button>
@@ -126,7 +93,7 @@ const Home = () => {
         ---
       </div>
       <div>
-        <FormLogin navigateToDashboard={navigateToDashboard} />
+        <FormLogin />
       </div>
     </>
   );

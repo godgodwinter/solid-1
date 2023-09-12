@@ -1,15 +1,24 @@
 import { Routes, Route, A, useRoutes } from "@solidjs/router";
 import { lazy } from "solid-js";
+import { Toaster } from "solid-toast";
 
 const routes = [
   {
     path: "/",
     component: lazy(() => import("./pages/Home.jsx")),
   },
+  // !siswa
   {
-    path: "/*all",
-    component: lazy(() => import("./pages/[...all].jsx")),
+    path: "/siswa",
+    component: lazy(() => import("./pages/siswa/layout.jsx")),
+    children: [
+      {
+        path: "/dashboard",
+        component: lazy(() => import("./pages/siswa/dashboard.jsx")),
+      },
+    ],
   },
+  //!example
   {
     path: "/users",
     component: lazy(() => import("./pages/Users.jsx")),
@@ -32,12 +41,19 @@ const routes = [
       },
     ],
   },
+  // !404
+
+  {
+    path: "/*all",
+    component: lazy(() => import("./pages/[...all].jsx")),
+  },
 ];
 
 export default function App() {
   const Routes = useRoutes(routes);
   return (
     <>
+      <Toaster position="top-right" gutter={8} />
       <nav>
         <A href="/">Home</A>
         <A href="/about">About</A>
