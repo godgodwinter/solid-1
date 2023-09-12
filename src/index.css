@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.btn {
+  @apply rounded-md;
+}
+.badge {
+  @apply rounded-md py-2;
+  /* @apply padding-top: :1px; */
+}
+.badge-primary{
+  @apply text-white;
+}
+.badge-neutral{
+  @apply text-white bg-teal-600 border-0;
+}
+.input{
+  @apply rounded-md;
+}
+.card{
+  @apply rounded-md;
+}
+
+.select {
+  @apply rounded-md;
+}
+
+/* .btn-ghost {
+  border-width: 1px;
+  border-color: transparent;
+  background-color: initial;
+  color: currentColor;
+}
+
+.btn-ghost.btn-active,.btn-ghost:hover {
+  --tw-border-opacity: 0;
+  --tw-bg-opacity: 0.2;
+  background-color: hsl(var(--bc) / var(--tw-bg-opacity));
+}
+
+.btn-ghost:focus-visible {
+  outline: 2px 0 0 2px solid currentColor;
+} */
