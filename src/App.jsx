@@ -12,7 +12,7 @@ const routes = [
   },
   {
     path: "/users",
-    component: lazy(() => import("./pages/users.jsx")),
+    component: lazy(() => import("./pages/Users.jsx")),
   },
   {
     path: "/users/:id",
