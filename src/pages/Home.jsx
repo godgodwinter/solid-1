@@ -34,7 +34,9 @@ const Input = (props) => {
           class="input input-bordered w-full max-w-xs"
         />
         <label class="label">
-          <span class="label-text-alt text-red-500">{field.error()}</span>
+          <span class="label-text-alt text-red-500 capitalize">
+            {field.error()}
+          </span>
         </label>
       </div>
     </>
@@ -70,8 +72,8 @@ const FormLogin = ({ navigateToDashboard }) => {
         <Form
           initialValues={{ username: "", password: "" }}
           validation={{
-            username: Yup.string().required(),
-            password: Yup.string().required(),
+            username: Yup.string().required().min(3),
+            password: Yup.string().required().min(3),
           }}
           onSubmit={async (form) => {
             // fn_submit(form.values);
