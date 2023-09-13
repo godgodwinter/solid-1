@@ -7,7 +7,6 @@ import toast from "solid-toast";
 import Api from "@/axios/axios";
 import ApiNode from "@/axios/axiosNode";
 import { useNavigate } from "@solidjs/router";
-import logo from "../assets/solid.svg";
 
 const Input = (props) => {
   const { field, form } = useField(props.name);
@@ -16,7 +15,7 @@ const Input = (props) => {
 
   return (
     <>
-      <div class="form-control w-full ">
+      <div class="form-control w-full max-w-xs">
         <label class="label" for={props.name}>
           <span class="label-text">
             {" "}
@@ -32,7 +31,7 @@ const Input = (props) => {
           //@ts-ignore
           use:formHandler
           placeholder="Type here"
-          class="input input-bordered w-full "
+          class="input input-bordered w-full max-w-xs"
         />
         <label class="label">
           <span class="label-text-alt text-red-500 capitalize">
@@ -68,6 +67,7 @@ const fn_submit = async (values) => {
 const FormLogin = ({ navigateToDashboard }) => {
   return (
     <>
+      Form Login
       <div className="px-4">
         <Form
           initialValues={{ username: "", password: "" }}
@@ -86,13 +86,7 @@ const FormLogin = ({ navigateToDashboard }) => {
         >
           <Input name="username" label="Username" />
           <Input name="password" label="Password" type="password" />
-          {/* <button type="submit">Submit</button> */}
-
-          <div class="form-control mt-6">
-            <button class="btn btn-primary w-full" type="submit">
-              Login
-            </button>
-          </div>
+          <button type="submit">Submit</button>
         </Form>
       </div>
     </>
@@ -118,35 +112,23 @@ const Home = () => {
   };
   return (
     <>
-      <div class="relative py-16 bg-gradient-to-br  bg-primary text-primary-content min-h-screen">
-        <div class="relative container m-auto px-6 text-gray-500 md:px-12 xl:px-40">
-          <div class="m-auto md:w-8/12 lg:w-6/12 xl:w-6/12">
-            <div class="rounded-xl bg-white shadow-xl">
-              <div class="p-6 sm:p-16">
-                <div class="space-y-4">
-                  <img
-                    src={logo}
-                    loading="lazy"
-                    class="w-10"
-                    alt="tailus logo"
-                  />
-                  <h2 class="mb-8 text-2xl text-cyan-900 font-bold">
-                    Sistem Ujian <br /> Lintas Bidang Studi
-                  </h2>
-                </div>
-                <div class="mt-16 grid space-y-4">
-                  <FormLogin navigateToDashboard={navigateToDashboard} />
-                </div>
-
-                <div class="mt-32 space-y-4 text-gray-600 text-center sm:-mb-8">
-                  <p class="text-xs">
-                    Copyright © 2023 - <strong>v.s-0</strong>.23.09.13
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <button onClick={notify}>Make me a toast</button>
+      {/* <Toaster position="top-right" gutter={8} /> */}
+      <div>
+        <p>Nilai Counter: {angka()}</p>
+        <button onClick={increment}>Increment</button>
+      </div>
+      <div>Ini halaman Home</div>
+      <div>
+        ---
+        {count}|{doubledCount}
+        <button className="btn btn-info" onClick={fn_increment_count}>
+          Click
+        </button>
+        ---
+      </div>
+      <div>
+        <FormLogin navigateToDashboard={navigateToDashboard} />
       </div>
     </>
   );

@@ -16,6 +16,19 @@ const routes = [
         path: "/dashboard",
         component: lazy(() => import("./pages/siswa/dashboard.jsx")),
       },
+      {
+        path: "/paket",
+        component: lazy(() => import("./pages/siswa/paket/index.jsx")),
+      },
+      {
+        path: "/paket/detail/:id",
+        component: lazy(() => import("./pages/siswa/paket/detail.jsx")),
+      },
+      // !ujian lintas
+      {
+        path: "/ujian/lintas",
+        component: lazy(() => import("./pages/siswa/lintas/index.jsx")),
+      },
     ],
   },
   //!example
@@ -54,14 +67,14 @@ export default function App() {
   return (
     <>
       <Toaster position="top-right" gutter={8} />
-      <nav>
+      {/* <nav>
         <A href="/">Home</A>
         <A href="/about">About</A>
         <A href="/users">Users</A>
         <A href="/users/22">User id</A>
-      </nav>
+      </nav> */}
       <div>
-        <h1>My Site with Lots of Pages</h1>
+        {/* <h1>My Site with Lots of Pages</h1> */}
         <Routes />
       </div>
     </>
