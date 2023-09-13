@@ -1,20 +1,12 @@
 // layoutStore.js
-import { createSignal } from "solid-js";
+import { createStore } from "solid-js/store";
 
-export const useLayoutStore = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = createSignal(true);
+const [isSidebarOpen, setIsSidebarOpen] = createStore({
+  sidebar: true,
+});
 
-  const toggleSidebar = () => {
-    // console.log(isSidebarOpen());
-    setIsSidebarOpen(!isSidebarOpen());
-  };
-  const getSidebar = () => {
-    return `${isSidebarOpen()} `;
-  };
-
-  return {
-    isSidebarOpen,
-    toggleSidebar,
-    getSidebar,
-  };
+const toggleSidebar = () => {
+  setIsSidebarOpen("sidebar", !isSidebarOpen.sidebar);
 };
+
+export { isSidebarOpen, toggleSidebar };
