@@ -26,7 +26,7 @@ const routes = [
       },
       // !ujian lintas
       {
-        path: "/ujian/lintas",
+        path: "/ujian/lintas/:nomer_soal", //dimulai dari 1
         component: lazy(() => import("./pages/siswa/lintas/index.jsx")),
       },
     ],

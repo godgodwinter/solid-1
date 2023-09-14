@@ -11,35 +11,31 @@ const queryClient = new QueryClient({
     cacheTime: 60000, // Cache data selama 60 detik (1 menit)
   },
 });
-const fn_fetchData = () => {
-  const siswaToken = localStorage.getItem("siswa_token");
-  const headers = {};
-  if (siswaToken) {
-    headers["Authorization"] = `Bearer ${siswaToken}`;
-  }
-  return fetch("http://localhost:11000/api/v2/siswa/profile", {
-    headers,
-  }).then((res) => res.json());
+const fetchData = () => {
+  return fetch("https://api.github.com/repos/tannerlinsley/react-query").then(
+    (res) => res.json()
+  );
 };
 const ProfileData = () => {
-  const query = createQuery(() => ["repoDataProfile"], fn_fetchData);
+  const query = createQuery(() => ["repoDataProfile"], fetchData);
 
   return (
     <Switch>
       <Match when={query.isLoading}>
         {" "}
         <LoadingComponent />
-        <DashboardLoading />
       </Match>
       <Match when={query.isError}>
         <FailedComponent message={query.error.message} />
       </Match>
       <Match when={query.isSuccess}>
-        {/* <div>
-          {" "}
-          <h1>{query.data.data.nama}</h1>
-        </div> */}
-        <ProfileCard data={query.data.data} />
+        <div>
+          <h1>{query.data.name}</h1>
+          <p>{query.data.description}</p>
+          <strong>👀 {query.data.subscribers_count}</strong>{" "}
+          <strong>✨ {query.data.stargazers_count}</strong>{" "}
+          <strong>🍴 {query.data.forks_count}</strong>
+        </div>
       </Match>
     </Switch>
   );
@@ -59,19 +55,19 @@ const SiswaDashboard = () => {
     <>
       <section className="">
         <div className=" space-y-2">
-          <Profile />
-          {/* <Loading /> */}
-          {/* <DashboardLoading /> */}
+          <ProfileCard />
+          <Loading />
+          <DashboardLoading />
         </div>
       </section>
     </>
   );
 };
 
-const ProfileCard = (props) => {
-  const data = props.data;
+const ProfileCard = () => {
   return (
     <>
+      <Profile />
       <div>
         <div class="relative max-w-md mx-2 md:max-w-2xl  min-w-0 break-words bg-white w-full mb-6 rounded-lg border pt-16 transition-shadow duration-500 ease-out cursor-pointer hover:shadow-xl">
           <div class="pt-4 px-6">
@@ -86,12 +82,12 @@ const ProfileCard = (props) => {
               </div>
               <div class="text-center mt-24 w-96">
                 <h3 class="text-2xl text-slate-700 font-bold leading-normal mb-1">
-                  {data.nama}
+                  aaa
                 </h3>
                 <div class="text-xs mt-0 mb-2 text-slate-400 font-bold uppercase">
                   <i class="fas fa-map-marker-alt mr-2 text-slate-400 opacity-75"></i>
-                  {data.sekolah.nama}
-                  <br /> {data.kelas.nama}
+                  bb
+                  <br /> 123
                 </div>
               </div>
 
@@ -104,29 +100,27 @@ const ProfileCard = (props) => {
                           <tr>
                             <td class="whitespace-nowrap w-1/12">No Induk</td>
                             <td class="whitespace-nowrap w-1/12">:</td>
-                            <td class="whitespace-nowrap w-10/12">
-                              {data.nomeridentitas}{" "}
-                            </td>
+                            <td class="whitespace-nowrap w-10/12">123 </td>
                           </tr>
                           <tr>
                             <td>Nama</td>
                             <td>:</td>
-                            <td>{data.nama}</td>
+                            <td>asdad</td>
                           </tr>
                           <tr>
                             <td>Jenis Kelamin</td>
                             <td>:</td>
-                            <td>{data.jk}</td>
+                            <td>bb</td>
                           </tr>
                           <tr>
                             <td>Sekolah</td>
                             <td>:</td>
-                            <td>{data.sekolah.nama}</td>
+                            <td>aad</td>
                           </tr>
                           <tr>
                             <td>Kelas</td>
                             <td>:</td>
-                            <td> {data.kelas.nama}</td>
+                            <td> aa</td>
                           </tr>
                         </tbody>
                       </table>
@@ -153,6 +147,29 @@ const ProfileCard = (props) => {
       </div>
     </>
   );
+};
+
+const UserPhoto = () => {
+  <>
+    {" "}
+    <svg
+      aria-hidden="true"
+      role="status"
+      class="inline w-4 h-4 mr-3 text-white animate-spin"
+      viewBox="0 0 100 101"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+        fill="#E5E7EB"
+      />
+      <path
+        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+        fill="currentColor"
+      />
+    </svg>
+  </>;
 };
 
 const LoadingComponent = () => {

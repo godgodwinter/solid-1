@@ -2,7 +2,7 @@
 import { createStore } from "solid-js/store";
 
 const [isSidebarOpen, setIsSidebarOpen] = createStore({
-  sidebar: true,
+  sidebar: false,
 });
 
 const toggleSidebar = () => {

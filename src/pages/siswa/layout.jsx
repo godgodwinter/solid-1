@@ -1,7 +1,41 @@
 import { A, Outlet, useNavigate } from "@solidjs/router";
 import toast from "solid-toast";
-import { createEffect, onCleanup } from "solid-js";
 import { isSidebarOpen, toggleSidebar } from "./layoutStore";
+import { run, waktuUjian } from "./lintas/waktuUjianStore";
+import {
+  stateUjianLintasStore,
+  setstateUjianLintasStore,
+  fn_getsoal_dari_mapelAktif,
+} from "./lintas/prosesUjianStore";
+import Api from "@/axios/axios";
+import ApiNode from "@/axios/axiosNode";
+import {
+  formatSecondsToMinutesAndSeconds,
+  periksaJawaban,
+} from "../../helpers/BabengFungsi";
+
+export const get_PeriksaUjianAktif = async () => {
+  try {
+    const response = await ApiNode.get(
+      `studiv3/siswa/ujianstudi/vless/periksaUjianAktif`
+    );
+    if (response.hasOwnProperty("data")) {
+      if (response.data) {
+        // console.log(response);
+        let getTimer = response?.data?.sisa_waktu;
+        run(getTimer);
+        setstateUjianLintasStore("mapel_aktif", response.data);
+        return response.data;
+      }
+    } else {
+      return null;
+    }
+  } catch (error) {
+    // Toast.danger("Error", `Gagal menghubungkan ke Server!`);
+    console.error(error);
+    return false;
+  }
+};
 
 const fn_periksa_Auth = () => {
   const siswa_token = localStorage.getItem("siswa_token");
@@ -18,10 +52,23 @@ const SiswaLayout = () => {
   if (!isAuth) {
     navigate("/", { replace: true }); // Redirect hanya jika otentikasi gagal.
   }
+
+  const navigateToDashboard = () => {
+    navigate("/siswa/dashboard", { replace: true });
+  };
+
+  const navigateToSoal = (nomerSoal = 1) => {
+    navigate(`/siswa/ujian/lintas/${nomerSoal}`, { replace: true });
+  };
+
+  get_PeriksaUjianAktif();
   return (
     <>
       <Navbar />
-      <Sidebar />
+      <Sidebar
+        navigateToDashboard={navigateToDashboard}
+        navigateToSoal={navigateToSoal}
+      />
       <div class="flex overflow-hidden pt-24 px-2 bg-base-100">
         <div class="opacity-50 hidden fixed inset-0 z-10" />
         <div class="w-full relative lg:ml-72">
@@ -34,7 +81,17 @@ const SiswaLayout = () => {
   );
 };
 
-const Sidebar = () => {
+const Sidebar = ({ navigateToDashboard, navigateToSoal }) => {
+  const do_Logout = () => {
+    localStorage.removeItem("siswa_token");
+    localStorage.removeItem("isLogin");
+    if (typeof navigateToDashboard === "function") {
+      navigateToDashboard();
+      navigateToSoal();
+    } else {
+      console.error("navigateToDashboard is not a function");
+    }
+  };
   let CssAside = `fixed z-20 h-full top-14 left-0 pt-4 flex lg:flex flex-shrink-0 flex-col w-80 lg:w-72 transition-width duration-75 bg-gray-50 shadow`;
   return (
     <>
@@ -48,55 +105,14 @@ const Sidebar = () => {
           <div class="flex-1 flex flex-col  pb-4 overflow-y-auto">
             <div class="flex-1 px-0 space-y-1">
               <ul class="menu menu-sm lg:menu-md px-4 py-0">
-                <div class="relative flex-1 flex flex-col min-h-0 ">
-                  <div class="flex-1 flex flex-col  pb-4 overflow-y-auto">
-                    <div class="flex-1 px-3 space-y-1">
-                      {" "}
-                      <li class="menu-title  gap-4 flex flex-row ">
-                        <span class="text-base-content">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            class="w-5 h-5 text-fuchsia-600"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 1a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 1zM5.05 3.05a.75.75 0 011.06 0l1.062 1.06A.75.75 0 116.11 5.173L5.05 4.11a.75.75 0 010-1.06zm9.9 0a.75.75 0 010 1.06l-1.06 1.062a.75.75 0 01-1.062-1.061l1.061-1.06a.75.75 0 011.06 0zM3 8a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 013 8zm11 0a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 0114 8zm-6.828 2.828a.75.75 0 010 1.061L6.11 12.95a.75.75 0 01-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm3.594-3.317a.75.75 0 00-1.37.364l-.492 6.861a.75.75 0 001.204.65l1.043-.799.985 3.678a.75.75 0 001.45-.388l-.978-3.646 1.292.204a.75.75 0 00.74-1.16l-3.874-5.764z"
-                              clipRule="evenodd"
-                            ></path>
-                          </svg>
-                        </span>
-                        <span> MAPEL : IPA </span>
-                      </li>
-                      <li></li>
-                      <ul class="space-y-1 pb-2 lg:flex flex-wrap px-2 gap-0 justify-between">
-                        {/* <li class="lg:w-full py-0 ">
-                          <h2 class="text-base-content font-bold rounded-lg flex items-center pt-4  group hover:link underline uppercase ">
-                            MAPEL
-                          </h2>
-                        </li> */}
+                {/* komponen ujian */}
+                {waktuUjian.count > 0 ? (
+                  <UjianComponent navigateToSoal={navigateToSoal} />
+                ) : (
+                  ""
+                )}
 
-                        <span>
-                          <div class="w-full font-bold text-xs py-4">
-                            <div class="flex flex-wrap gap-2">
-                              <span className="space-x-1">
-                                <A href="/siswa/ujian/lintas">
-                                  <span class="btn btn-xs btn-info">1</span>
-                                </A>
-                                <span class="btn btn-xs btn-light">2</span>
-                              </span>
-                            </div>
-                          </div>
-                        </span>
-                      </ul>
-                      <span>
-                        <button class="btn btn-error btn-md">FINISH</button>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
+                {/* komponen ujian */}
                 <li class="menu-title  gap-4 hidden md:flex flex-row ">
                   <span class="text-base-content">
                     <svg
@@ -172,7 +188,7 @@ const Sidebar = () => {
               <ul class="menu menu-sm lg:menu-md px-4 py-0">
                 <li></li>
                 <li>
-                  <span>
+                  <span onClick={do_Logout}>
                     <span>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -198,6 +214,91 @@ const Sidebar = () => {
           </div>
         </div>
       </aside>
+    </>
+  );
+};
+
+const UjianComponent = ({ navigateToSoal }) => {
+  if (typeof navigateToSoal === "function") {
+    navigateToSoal();
+  } else {
+    console.error("navigateToDashboard is not a function");
+  }
+  const fn_goto_soal = (nomerSoal) => {
+    fn_getsoal_dari_mapelAktif(nomerSoal);
+    navigateToSoal(nomerSoal);
+    // router.navigate(`/siswa/ujian/lintas/${nomerSoal}`);
+  };
+  return (
+    <>
+      {" "}
+      <div class="relative flex-1 flex flex-col min-h-0 ">
+        <div class="flex-1 flex flex-col  pb-4 overflow-y-auto">
+          <div class="flex-1 px-3 space-y-1">
+            {" "}
+            <li class="menu-title  gap-4 flex flex-row ">
+              <span class="text-base-content">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  class="w-5 h-5 text-fuchsia-600"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 1a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 1zM5.05 3.05a.75.75 0 011.06 0l1.062 1.06A.75.75 0 116.11 5.173L5.05 4.11a.75.75 0 010-1.06zm9.9 0a.75.75 0 010 1.06l-1.06 1.062a.75.75 0 01-1.062-1.061l1.061-1.06a.75.75 0 011.06 0zM3 8a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 013 8zm11 0a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 0114 8zm-6.828 2.828a.75.75 0 010 1.061L6.11 12.95a.75.75 0 01-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm3.594-3.317a.75.75 0 00-1.37.364l-.492 6.861a.75.75 0 001.204.65l1.043-.799.985 3.678a.75.75 0 001.45-.388l-.978-3.646 1.292.204a.75.75 0 00.74-1.16l-3.874-5.764z"
+                    clipRule="evenodd"
+                  ></path>
+                </svg>
+              </span>
+              <span className="font-bold uppercase text-black">
+                {" "}
+                MAPEL : {
+                  stateUjianLintasStore?.mapel_aktif?.aspek_detail_nama
+                }{" "}
+              </span>
+            </li>
+            <li></li>
+            <ul class="space-y-1 pb-2 lg:flex flex-wrap px-2 gap-0 justify-between">
+              <span>
+                <div class="w-full font-bold text-xs py-4">
+                  <div class="flex flex-wrap gap-2">
+                    {stateUjianLintasStore.mapel_aktif?.soal.map(
+                      (soal, index) => (
+                        <span className="" key={index}>
+                          <span
+                            onClick={() => fn_goto_soal(index + 1)}
+                            className={`btn btn-xs ${
+                              soal.kode_jawaban ? "btn-info" : "btn-light"
+                            }`}
+                          >
+                            {index + 1}.{" "}
+                            {periksaJawaban(soal, soal.kode_jawaban)}
+                          </span>
+
+                          {/* <A href={`/siswa/ujian/lintas/${index + 1}`}>
+                            <span
+                              className={`btn btn-xs ${
+                                soal.kode_jawaban ? "btn-info" : "btn-light"
+                              }`}
+                            >
+                              {index + 1}.{" "}
+                              {periksaJawaban(soal, soal.kode_jawaban)}
+                            </span>
+                          </A> */}
+                        </span>
+                      )
+                    )}
+                  </div>
+                </div>
+              </span>
+            </ul>
+            <span>
+              <button class="btn btn-error btn-md">FINISH</button>
+            </span>
+          </div>
+        </div>
+      </div>
     </>
   );
 };
@@ -258,33 +359,40 @@ const Navbar = (props) => {
             <div class="navbar-center hidden lg:flex">
               <div class="text-xl space-x-2">
                 {" "}
-                <A href="/siswa/ujian/lintas">
-                  <span class="font-bold text-md underline">SOAL</span>
-                </A>
-                {/* <span class="px-4 font-bold text-slate-600">aa</span>
-                <span class="px-4 font-bold text-red-600">11</span> */}
-                <span>
-                  <kbd class="kbd text-red-500">100</kbd>
-                </span>
+                {waktuUjian.count > 0 ? (
+                  <NavbarTimer waktu={waktuUjian.count} />
+                ) : (
+                  ""
+                )}
               </div>
             </div>
             <div class="navbar-end space-x-2 md:hidden">
               <div class="text-lg space-x-2">
                 {" "}
-                <A href="/siswa/ujian/lintas">
-                  <span class="font-bold text-md underline">SOAL</span>
-                </A>
-                {/* <span class="px-4 font-bold text-slate-600">aa</span> */}
-                {/* <span class="px-4 font-extrabold text-red-600">11</span> */}
-                <span>
-                  <kbd class="kbd text-red-500">100</kbd>
-                </span>
+                {waktuUjian.count > 0 ? <NavbarTimer /> : ""}
               </div>
             </div>
             {/* !batas navbar */}
           </div>
         </div>
       </div>
+    </>
+  );
+};
+
+const NavbarTimer = () => {
+  return (
+    <>
+      {" "}
+      <A href="/siswa/ujian/lintas/1" class="space-x-2">
+        {/* <span class="font-bold text-md underline"> SOAL</span> */}
+        <span className="">
+          SISA WAKTU :
+          <kbd class="kbd text-red-500">
+            {formatSecondsToMinutesAndSeconds(waktuUjian.count)}
+          </kbd>
+        </span>{" "}
+      </A>
     </>
   );
 };

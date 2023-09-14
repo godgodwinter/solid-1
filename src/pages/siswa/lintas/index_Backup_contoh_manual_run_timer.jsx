@@ -8,7 +8,7 @@ import {
   resume,
   stop,
 } from "./waktuUjianStore";
-import { For, Show, createEffect, createSignal, onCleanup } from "solid-js";
+import { createEffect, createSignal, onCleanup } from "solid-js";
 import {
   fn_getsoal_dari_mapelAktif,
   stateUjianLintasStore,
@@ -26,7 +26,7 @@ const UjianIndex = () => {
   };
   return (
     <>
-      {/* <div>
+      <div>
         {`${waktuUjian.count}`}
         <div className="space-x-2">
           <button
@@ -45,7 +45,7 @@ const UjianIndex = () => {
             Stop
           </button>
         </div>
-      </div> */}
+      </div>
       <section className="">
         <div className=" space-y-2">
           <SoalContainer />
@@ -98,7 +98,26 @@ const SoalUjianComponent = (props) => {
                 </button>
               </div>
               <div class="w-96 pb-0 ">
-                <div class="lg:flex justify-end px-2 space-x-2"></div>
+                <div class="lg:flex justify-end px-2 space-x-2">
+                  {/* <button
+                  class="btn btn-sm btn-accent"
+                  onClick={handleSebelumnyaClick}
+                  disabled={nomerSoal() === 1} // Disable jika nomer soal sudah 1
+                >
+                  Sebelumnya
+                </button>
+                <button
+                  class="btn btn-sm btn-info"
+                  onClick={handleSelanjutnyaClick}
+                  disabled={
+                    nomerSoal() === stateUjianLintasStore.mapel_aktif?.soal
+                      ? stateUjianLintasStore.mapel_aktif?.soal?.length + 1
+                      : 1
+                  } // Disable jika nomer soal sudah maksimum (contoh: 10)
+                >
+                  Selanjutnya
+                </button> */}
+                </div>
               </div>
             </div>
 
@@ -134,42 +153,51 @@ const SoalUjianComponent = (props) => {
                     </span>
                   </div>
                 </div>
-              </div>{" "}
-              <div class="px-4 lg:px-10">
-                <For each={data?.pilihanjawaban}>
-                  {(item, index) => (
-                    <div class="p-4" key={index}>
-                      {/* <Show when={buttonSaveDisabled > 0}> */}
-                      {/* <div
-                        class={`card w-full ${
-                          data?.kode_jawaban === item.kode_jawaban
-                            ? "bg-slate-500"
-                            : "bg-slate-500"
-                        } shadow-md hover:shadow-lg text-justify`}
-                      >
-                        <div class="card-body">
-                          <span class=" font-bold ">A . </span>
-                          <p class="text-base" innerHTML={item.jawaban}></p>
-                        </div>
-                      </div> */}
-                      {/* </Show> */}
-                      {/* <Show when={!buttonSaveDisabled}> */}
-                      <div
-                        class={`card w-full ${
-                          data?.kode_jawaban === item.kode_jawaban
-                            ? "bg-info"
-                            : "bg-base-200"
-                        } shadow-md hover:shadow-lg text-justify`}
-                      >
-                        <div class="card-body">
-                          <span class=" font-bold ">A . </span>
-                          <p class="text-base" innerHTML={item.jawaban}></p>
-                        </div>
+              </div>
+              <div class="px-4 lg:px-10" v-if="data?.pilihanjawaban">
+                <div class="p-4" v-for="item, index in data.pilihanjawaban">
+                  <span v-if="buttonSaveDisabled > 0">
+                    <div
+                      class="card w-full bg-slate-500 shadow-md hover:shadow-lg text-justify"
+                      v-if="data?.kode_jawaban == item.kode_jawaban"
+                    >
+                      <div class="card-body">
+                        <span class=" font-bold ">A . </span>
+                        <p class="text-base" v-html="item.jawaban"></p>
                       </div>
-                      {/* </Show> */}
                     </div>
-                  )}
-                </For>
+                    <div
+                      class="card w-full bg-slate-500 shadow-md hover:shadow-lg text-justify "
+                      v-else
+                    >
+                      <div class="card-body">
+                        <span class=" font-bold ">AAA . </span>
+
+                        <p class="text-base" v-html="item.jawaban"></p>
+                      </div>
+                    </div>
+                  </span>
+                  <span>
+                    <div
+                      class="card w-full bg-info shadow-md hover:shadow-lg text-justify"
+                      v-if="data?.kode_jawaban == item.kode_jawaban"
+                    >
+                      <div class="card-body">
+                        <span class=" font-bold ">AA. </span>
+                        <p class="text-base"></p>
+                      </div>
+                    </div>
+                    <div
+                      class="card w-full bg-base-200 shadow-md hover:shadow-lg text-justify "
+                      v-else
+                    >
+                      <div class="card-body">
+                        <span class=" font-bold ">1. </span>
+                        <p class="text-base">jawaban</p>
+                      </div>
+                    </div>
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -181,7 +209,7 @@ const SoalUjianComponent = (props) => {
             </div>
           </div>
         </div>
-        {/* <div>
+        <div v-else>
           <div class="alert alert-error shadow-lg">
             <div>
               <svg
@@ -201,7 +229,7 @@ const SoalUjianComponent = (props) => {
               <span> Waktu telah habis!</span>
             </div>
           </div>
-        </div> */}
+        </div>
       </div>
     </>
   );
