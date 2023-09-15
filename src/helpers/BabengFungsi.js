@@ -92,6 +92,7 @@ export const periksaJawaban = (soal, kode_jawaban) => {
 };
 
 export const fnNumberToAlphabet = (num) => {
+  // console.log(num);
   if (isNaN(num)) return NaN;
   return (num + 9).toString(36).toUpperCase();
 };

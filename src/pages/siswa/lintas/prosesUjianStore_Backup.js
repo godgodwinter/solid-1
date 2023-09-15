@@ -20,13 +20,6 @@ const fn_getsoal_dari_mapelAktif = (nomerSoal) => {
         ...stateUjianLintasStore.mapel_aktif.soal[index],
         nomerSoal,
       };
-      // foundSoal.pilihanjawaban.forEach((element) => {});
-      foundSoal.pilihanjawaban = foundSoal.pilihanjawaban.map(
-        (jawaban, idx) => ({
-          ...jawaban,
-          kode_abc: String.fromCharCode(65 + idx), // A, B, C, ...
-        })
-      );
       setstateUjianLintasStore("soal_aktif", foundSoal);
       return foundSoal;
     } else {

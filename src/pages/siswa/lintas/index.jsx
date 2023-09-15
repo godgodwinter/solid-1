@@ -1,4 +1,4 @@
-import { A, useParams } from "@solidjs/router";
+import { A, useNavigate, useParams } from "@solidjs/router";
 import {
   waktuUjian,
   setwaktuUjian,
@@ -11,8 +11,12 @@ import {
 import { For, Show, createEffect, createSignal, onCleanup } from "solid-js";
 import {
   fn_getsoal_dari_mapelAktif,
+  setstateUjianLintasStore,
   stateUjianLintasStore,
 } from "./prosesUjianStore";
+import Api from "@/axios/axios";
+import ApiNode from "@/axios/axiosNode";
+import { fnNumberToAlphabet } from "../../../helpers/BabengFungsi";
 
 // const do_run_timer = (durasi) => {
 //   console.log("cliked btn");
@@ -21,6 +25,13 @@ import {
 // };
 
 const UjianIndex = () => {
+  const navigate = useNavigate();
+  const navigateToSoal = (nomerSoal = 1) => {
+    navigate(`/siswa/ujian/lintas/${nomerSoal}`, { replace: true });
+  };
+  const navigateToPaket = (nomerSoal = 1) => {
+    navigate(`/siswa/paket`, { replace: true });
+  };
   const doRunTimer = (durasi) => {
     run(durasi);
   };
@@ -48,7 +59,10 @@ const UjianIndex = () => {
       </div> */}
       <section className="">
         <div className=" space-y-2">
-          <SoalContainer />
+          <SoalContainer
+            navigateToSoal={navigateToSoal}
+            navigateToPaket={navigateToPaket}
+          />
         </div>
       </section>
     </>
@@ -57,7 +71,22 @@ const UjianIndex = () => {
 
 export default UjianIndex;
 
-const SoalContainer = () => {
+const SoalContainer = ({ navigateToSoal, navigateToPaket }) => {
+  const handleNavigateToSoal = (nomerSoal) => {
+    if (typeof navigateToSoal === "function") {
+      navigateToSoal(nomerSoal);
+    } else {
+      console.error("navigateToSoal is not a function");
+    }
+  };
+  const handleNavigateToPaket = () => {
+    console.log("clicked");
+    if (typeof navigateToPaket === "function") {
+      navigateToPaket();
+    } else {
+      console.error("navigateToPaket is not a function");
+    }
+  };
   const params = useParams();
   const nomerSoal = params.nomer_soal;
   // const nomerSoalStore = () => stateUjianLintasStore.soal_aktif?.nomerSoal;
@@ -71,18 +100,95 @@ const SoalContainer = () => {
 
   return (
     <>
-      {stateUjianLintasStore.soal_aktif ? (
-        <SoalUjianComponent data={stateUjianLintasStore.soal_aktif} />
+      {stateUjianLintasStore.soal_aktif && waktuUjian.count > 0 ? (
+        <SoalUjianComponent
+          data={stateUjianLintasStore.soal_aktif}
+          navigateToSoal={handleNavigateToSoal}
+        />
       ) : (
-        ""
+        <>
+          <div>
+            <p>"Soal Tidak ditemukan ! "</p>
+            <button class="btn btn-secondary" onClick={handleNavigateToPaket}>
+              Kembali ke paket
+            </button>
+          </div>
+        </>
       )}
     </>
   );
 };
 
-const SoalUjianComponent = (props) => {
-  const data = props.data;
+const SoalUjianComponent = ({ data, navigateToSoal }) => {
+  const handleNavigateToSoal = (nomerSoal) => {
+    if (typeof navigateToSoal === "function") {
+      fn_getsoal_dari_mapelAktif(nomerSoal);
+      navigateToSoal(nomerSoal);
+    } else {
+      console.error("navigateToSoal is not a function");
+    }
+  };
+  // const data = props.data;
+  const do_save_jawaban = async (
+    itemSoal,
+    kode_jawaban,
+    soal_id,
+    nomerSoal
+  ) => {
+    // console.log(itemSoal, nomerSoal);
+    // itemSoal.kode_jawaban = kode_jawaban;
+
+    // console.log(kode_jawaban);
+    try {
+      let dataFormSend = {
+        kode_jawaban,
+        aspekdetail_index: "fn_check_index_mapel_aktif", //!tidak digunakan
+        soal_index: nomerSoal - 1, //!tidak digunakan
+      };
+      // console.log("====================================");
+      // console.log(
+      //   dataFormSend,
+      //   soal_id,
+      //   stateUjianLintasStore.mapel_aktif.id,
+      //   "tes"
+      // );
+      // console.log("====================================");
+      const response = await ApiNode.post(
+        `studiv3/siswa/ujianstudi/vless/paketsoal/${stateUjianLintasStore.mapel_aktif.id}/getsoal/${soal_id}`,
+        dataFormSend
+      );
+
+      const updatedItemSoal = {
+        ...itemSoal,
+        kode_jawaban: kode_jawaban,
+      };
+
+      setstateUjianLintasStore((prevState) => ({
+        ...prevState,
+        mapel_aktif: {
+          ...prevState.mapel_aktif,
+          soal: prevState.mapel_aktif.soal.map((soal) => {
+            if (soal.id === soal_id) {
+              return updatedItemSoal;
+            }
+            return soal;
+          }),
+        },
+      }));
+      fn_getsoal_dari_mapelAktif(nomerSoal);
+      // console.log("====================================");
+      // console.log(response);
+      // console.log("====================================");
+      // console.log("====================================");
+      // console.log("berhasil menyimpan jawaban!");
+      // console.log("====================================");
+    } catch (error) {
+      // setTimeout(fnPending, defaultPendingLogin, false);
+      console.error(error);
+    }
+  };
   // console.log(data);
+
   return (
     <>
       <div>
@@ -98,7 +204,53 @@ const SoalUjianComponent = (props) => {
                 </button>
               </div>
               <div class="w-96 pb-0 ">
-                <div class="lg:flex justify-end px-2 space-x-2"></div>
+                <div class=" lg:flex justify-end px-2 space-x-2 ">
+                  <button
+                    onClick={() =>
+                      handleNavigateToSoal(
+                        parseInt(
+                          stateUjianLintasStore.soal_aktif
+                            ? stateUjianLintasStore.soal_aktif.nomerSoal
+                            : 1
+                        ) - 1
+                      )
+                    }
+                    disabled={
+                      parseInt(
+                        stateUjianLintasStore.soal_aktif
+                          ? stateUjianLintasStore.soal_aktif.nomerSoal
+                          : 1
+                      ) <= 0
+                    }
+                    class="btn btn-sm btn-accent"
+                  >
+                    Sebelumnya
+                    {/* {stateUjianLintasStore.soal_aktif.nomerSoal} */}
+                    {/* {data ? data.nomerSoal : 1} */}
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleNavigateToSoal(
+                        parseInt(
+                          stateUjianLintasStore.soal_aktif
+                            ? stateUjianLintasStore.soal_aktif.nomerSoal
+                            : 1
+                        ) + 1
+                      )
+                    }
+                    disabled={
+                      parseInt(
+                        stateUjianLintasStore.soal_aktif
+                          ? stateUjianLintasStore.soal_aktif.nomerSoal
+                          : 1
+                      ) >=
+                      stateUjianLintasStore.mapel_aktif.soal.length - 1
+                    }
+                    class="btn btn-sm btn-info"
+                  >
+                    Selanjutnya
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -160,9 +312,21 @@ const SoalUjianComponent = (props) => {
                             ? "bg-info"
                             : "bg-base-200"
                         } shadow-md hover:shadow-lg text-justify`}
+                        onClick={() =>
+                          do_save_jawaban(
+                            data,
+                            item.kode_jawaban,
+                            data.id,
+                            parseInt(data.nomerSoal)
+                          )
+                        }
                       >
                         <div class="card-body">
-                          <span class=" font-bold ">A . </span>
+                          <span class=" font-bold ">
+                            {/* {fnNumberToAlphabet(index)} */}
+                            {/* {item.id} */}
+                            {item?.kode_abc}.{" "}
+                          </span>
                           <p class="text-base" innerHTML={item.jawaban}></p>
                         </div>
                       </div>
@@ -175,8 +339,52 @@ const SoalUjianComponent = (props) => {
 
             <div class="pb-5">
               <div class="w-full flex justify-end px-4 space-x-2">
-                <button class="btn btn-sm btn-accent">Sebelumnya</button>
-                <button class="btn btn-sm btn-info">Selanjutnya </button>
+                <div class=" lg:flex justify-end px-2 space-x-2 ">
+                  <button
+                    onClick={() =>
+                      handleNavigateToSoal(
+                        parseInt(
+                          stateUjianLintasStore.soal_aktif
+                            ? stateUjianLintasStore.soal_aktif.nomerSoal
+                            : 1
+                        ) - 1
+                      )
+                    }
+                    disabled={
+                      parseInt(
+                        stateUjianLintasStore.soal_aktif
+                          ? stateUjianLintasStore.soal_aktif.nomerSoal
+                          : 1
+                      ) <= 0
+                    }
+                    class="btn btn-sm btn-accent"
+                  >
+                    Sebelumnya
+                    {/* {data ? data.nomerSoal : 1} */}
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleNavigateToSoal(
+                        parseInt(
+                          stateUjianLintasStore.soal_aktif
+                            ? stateUjianLintasStore.soal_aktif.nomerSoal
+                            : 1
+                        ) + 1
+                      )
+                    }
+                    disabled={
+                      parseInt(
+                        stateUjianLintasStore.soal_aktif
+                          ? stateUjianLintasStore.soal_aktif.nomerSoal
+                          : 1
+                      ) >=
+                      stateUjianLintasStore.mapel_aktif.soal.length - 1
+                    }
+                    class="btn btn-sm btn-info"
+                  >
+                    Selanjutnya
+                  </button>
+                </div>
               </div>
             </div>
           </div>
