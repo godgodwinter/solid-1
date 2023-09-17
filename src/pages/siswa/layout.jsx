@@ -1,7 +1,7 @@
 import { A, Outlet, useNavigate } from "@solidjs/router";
 import toast from "solid-toast";
 import { isSidebarOpen, toggleSidebar } from "./layoutStore";
-import { run, waktuUjian } from "./lintas/waktuUjianStore";
+import { run, setwaktuUjian, stop, waktuUjian } from "./lintas/waktuUjianStore";
 import {
   stateUjianLintasStore,
   setstateUjianLintasStore,
@@ -53,8 +53,16 @@ const SiswaLayout = () => {
     navigate("/", { replace: true }); // Redirect hanya jika otentikasi gagal.
   }
 
+  const navigateToLanding = () => {
+    navigate("/", { replace: true });
+  };
+
   const navigateToDashboard = () => {
     navigate("/siswa/dashboard", { replace: true });
+  };
+
+  const navigateToPaket = () => {
+    navigate("/siswa/paket", { replace: true });
   };
 
   const navigateToSoal = (nomerSoal = 1) => {
@@ -68,6 +76,8 @@ const SiswaLayout = () => {
       <Sidebar
         navigateToDashboard={navigateToDashboard}
         navigateToSoal={navigateToSoal}
+        navigateToLanding={navigateToLanding}
+        navigateToPaket={navigateToPaket}
       />
       <div class="flex overflow-hidden pt-24 px-2 bg-base-100">
         <div class="opacity-50 hidden fixed inset-0 z-10" />
@@ -81,16 +91,37 @@ const SiswaLayout = () => {
   );
 };
 
-const Sidebar = ({ navigateToDashboard, navigateToSoal }) => {
+const Sidebar = ({
+  navigateToDashboard,
+  navigateToSoal,
+  navigateToLanding,
+  navigateToPaket,
+}) => {
+  const handleNavigateToLanding = () => {
+    if (typeof navigateToLanding === "function") {
+      navigateToLanding();
+    } else {
+      console.error("navigateToLanding is not a function");
+    }
+  };
+  const handleNavigateToPaket = () => {
+    if (typeof navigateToPaket === "function") {
+      navigateToLanding();
+    } else {
+      console.error("navigateToLanding is not a function");
+    }
+  };
   const do_Logout = () => {
     localStorage.removeItem("siswa_token");
     localStorage.removeItem("isLogin");
-    if (typeof navigateToDashboard === "function") {
-      navigateToDashboard();
-      navigateToSoal();
-    } else {
-      console.error("navigateToDashboard is not a function");
-    }
+    handleNavigateToLanding();
+    // if (typeof navigateToDashboard === "function") {
+    //   // navigateToDashboard();
+    //   // navigateToSoal();
+    //   handleNavigateToDashboard();
+    // } else {
+    //   console.error("navigateToDashboard is not a function");
+    // }
   };
   let CssAside = `fixed z-20 h-full top-14 left-0 pt-4 flex lg:flex flex-shrink-0 flex-col w-80 lg:w-72 transition-width duration-75 bg-gray-50 shadow`;
   return (
@@ -107,7 +138,10 @@ const Sidebar = ({ navigateToDashboard, navigateToSoal }) => {
               <ul class="menu menu-sm lg:menu-md px-4 py-0">
                 {/* komponen ujian */}
                 {waktuUjian.count > 0 ? (
-                  <UjianComponent navigateToSoal={navigateToSoal} />
+                  <UjianComponent
+                    navigateToSoal={navigateToSoal}
+                    navigateToPaket={handleNavigateToPaket}
+                  />
                 ) : (
                   ""
                 )}
@@ -218,7 +252,7 @@ const Sidebar = ({ navigateToDashboard, navigateToSoal }) => {
   );
 };
 
-const UjianComponent = ({ navigateToSoal }) => {
+const UjianComponent = ({ navigateToSoal, navigateToPaket }) => {
   if (typeof navigateToSoal === "function") {
     navigateToSoal();
   } else {
@@ -228,6 +262,51 @@ const UjianComponent = ({ navigateToSoal }) => {
     fn_getsoal_dari_mapelAktif(nomerSoal);
     navigateToSoal(nomerSoal);
     // router.navigate(`/siswa/ujian/lintas/${nomerSoal}`);
+  };
+
+  const handleNavigateToPaket = () => {
+    if (typeof navigateToPaket === "function") {
+      navigateToLanding();
+    } else {
+      console.error("navigateToLanding is not a function");
+    }
+  };
+
+  const fn_do_finish = async () => {
+    if (confirm("Apakah anda yakin mengkhiri mapel ini?")) {
+      // timerStore.doClearInterval();
+      // 2. update tgl_selesai pada ujian aktive menjadi dateNow
+      // 3. set mapel aktif = null
+      // 4.  set soal aktif=null
+      // 5. redirect to paket
+      // let dataMapel = ujianstudiPagesStore.get_siswa_ujianstudi;
+      // let dataMapel_aktif = ujianstudiPagesStore.get_siswa_ujianstudi_aktif;
+      // ujianstudiPagesStore.set_siswa_ujianstudi_soal_aktif(null);
+      // ujianstudiPagesStore.set_siswa_ujianstudi_aktif(null);
+      // setwaktuUjian("count",0)
+      console.log(stateUjianLintasStore.mapel_aktif?.id);
+      try {
+        const response = await ApiNode.post(
+          `studiv3/siswa/ujianstudi/vless/paketsoal/${stateUjianLintasStore.mapel_aktif?.id}/do_finish`
+        );
+        console.log("ujian berhasil diakhiri");
+
+        stop();
+        setstateUjianLintasStore("mapel_aktif", null);
+        setstateUjianLintasStore("semua_mapel", null);
+
+        // toast
+        //redirect
+        handleNavigateToPaket;
+      } catch (error) {
+        console.log("ujian gagal diakhiri");
+        console.error(error);
+      }
+      // Toast.danger("Warning", " Ujian berhasil diakhiri!");
+      // router.push({
+      //   name: "studi-paket",
+      // });
+    }
   };
   return (
     <>
@@ -294,7 +373,9 @@ const UjianComponent = ({ navigateToSoal }) => {
               </span>
             </ul>
             <span>
-              <button class="btn btn-error btn-md">FINISH</button>
+              <button class="btn btn-error btn-md" onClick={fn_do_finish}>
+                FINISH
+              </button>
             </span>
           </div>
         </div>

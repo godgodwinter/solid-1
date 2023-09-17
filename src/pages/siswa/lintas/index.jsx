@@ -108,7 +108,7 @@ const SoalContainer = ({ navigateToSoal, navigateToPaket }) => {
       ) : (
         <>
           <div>
-            <p>"Soal Tidak ditemukan ! "</p>
+            <p>"Soal Tidak ditemukan ! atau Mapel Ini telah diselesaikan! "</p>
             <button class="btn btn-secondary" onClick={handleNavigateToPaket}>
               Kembali ke paket
             </button>
