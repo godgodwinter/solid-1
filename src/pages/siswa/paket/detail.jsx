@@ -138,11 +138,15 @@ const PaketDetailCard = ({ data, navigateToSoal }) => {
     if (timer == 0) {
       let tgl_mulai = new Date();
 
-      let waktuTambahan = 15;
+      let waktuTambahan = data?.waktu;
+      // let waktuTambahan = 15;
       let tgl_selesai = new Date(tgl_mulai.getTime() + waktuTambahan * 60000); // 60000 milidetik dalam satu menit
 
       const tgl_mulaiFormatted = formatDateToYYYYMMDDHHIIStr(tgl_mulai);
       const tgl_selesaiFormatted = formatDateToYYYYMMDDHHIIStr(tgl_selesai);
+      console.log(
+        `${tgl_mulaiFormatted},${tgl_selesaiFormatted},${tgl_mulai},${waktuTambahan}`
+      );
       // console.log("Tanggal Mulai:", tgl_mulaiFormatted);
       // console.log("Tanggal Selesai:", tgl_selesaiFormatted);
       // console.log("Mulai");

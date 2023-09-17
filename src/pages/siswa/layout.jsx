@@ -291,13 +291,13 @@ const UjianComponent = ({ navigateToSoal, navigateToPaket }) => {
         );
         console.log("ujian berhasil diakhiri");
 
+        handleNavigateToPaket;
         stop();
         setstateUjianLintasStore("mapel_aktif", null);
         setstateUjianLintasStore("semua_mapel", null);
 
         // toast
         //redirect
-        handleNavigateToPaket;
       } catch (error) {
         console.log("ujian gagal diakhiri");
         console.error(error);
