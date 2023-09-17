@@ -11,6 +11,10 @@ import {
   isExamFinished,
 } from "../../../helpers/BabengFungsi";
 
+const VITE_API_URL = import.meta.env.VITE_API_URL
+  ? import.meta.env.VITE_API_URL
+  : "http://localhost:11000/";
+
 const queryClient = new QueryClient({
   defaultConfig: {
     cacheTime: 60000, // Cache data selama 60 detik (1 menit)
@@ -38,7 +42,7 @@ const fn_fetcher = async (key) => {
       headers["Authorization"] = `Bearer ${siswaToken}`;
     }
     const response = await fetch(
-      `http://localhost:11000/api/v2/studiv3/siswa/ujianstudi/vless/get_aspekdetail_tersedia`,
+      `${VITE_API_URL}api/v2/studiv3/siswa/ujianstudi/vless/get_aspekdetail_tersedia`,
       {
         headers,
       }

@@ -6,6 +6,10 @@ import {
 } from "@tanstack/solid-query";
 import { Match, Switch } from "solid-js";
 
+const VITE_API_URL = import.meta.env.VITE_API_URL
+  ? import.meta.env.VITE_API_URL
+  : "http://localhost:11000/";
+
 const queryClient = new QueryClient({
   defaultConfig: {
     cacheTime: 60000, // Cache data selama 60 detik (1 menit)
@@ -17,7 +21,7 @@ const fn_fetchData = () => {
   if (siswaToken) {
     headers["Authorization"] = `Bearer ${siswaToken}`;
   }
-  return fetch("http://localhost:11000/api/v2/siswa/profile", {
+  return fetch(`${VITE_API_URL}api/v2/siswa/profile`, {
     headers,
   }).then((res) => res.json());
 };
