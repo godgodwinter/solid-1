@@ -55,28 +55,34 @@ const SiswaLayout = () => {
     navigate("/", { replace: true }); // Redirect hanya jika otentikasi gagal.
   }
 
-  const contextValue = {
-    navigateToLanding: () => {
-      navigate("/", { replace: true });
-    },
-    navigateToDashboard: () => {
-      navigate("/siswa/dashboard", { replace: true });
-    },
-    navigateToPaket: () => {
-      navigate("/siswa/paket", { replace: true });
-    },
-    navigateToSoal: (nomerSoal = 1) => {
-      navigate(`/siswa/ujian/lintas/${nomerSoal}`, { replace: true });
-    },
+  const navigateToLanding = () => {
+    navigate("/", { replace: true });
+  };
+
+  const navigateToDashboard = () => {
+    navigate("/siswa/dashboard", { replace: true });
+  };
+
+  const navigateToPaket = () => {
+    navigate("/siswa/paket", { replace: true });
+  };
+
+  const navigateToSoal = (nomerSoal = 1) => {
+    navigate(`/siswa/ujian/lintas/${nomerSoal}`, { replace: true });
   };
 
   get_PeriksaUjianAktif();
   // const contextValue = navigateToPaket();
   return (
     <>
-      <MyContext.Provider value={contextValue}>
+      <MyContext.Provider value={navigateToPaket}>
         <Navbar />
-        <Sidebar />
+        <Sidebar
+          navigateToDashboard={navigateToDashboard}
+          navigateToSoal={navigateToSoal}
+          navigateToLanding={navigateToLanding}
+          navigateToPaket={navigateToPaket}
+        />
         <div class="flex overflow-hidden pt-24 px-2 bg-base-100">
           <div class="opacity-50 hidden fixed inset-0 z-10" />
           <div class="w-full relative lg:ml-72">
@@ -90,19 +96,37 @@ const SiswaLayout = () => {
   );
 };
 
-const Sidebar = () => {
-  const context = useContext(MyContext);
+const Sidebar = ({
+  navigateToDashboard,
+  navigateToSoal,
+  navigateToLanding,
+  navigateToPaket,
+}) => {
   const handleNavigateToLanding = () => {
-    context.navigateToLanding();
+    if (typeof navigateToLanding === "function") {
+      navigateToLanding();
+    } else {
+      console.error("navigateToLanding is not a function");
+    }
   };
-
   const handleNavigateToPaket = () => {
-    context.navigateToPaket();
+    if (typeof navigateToPaket === "function") {
+      navigateToLanding();
+    } else {
+      console.error("navigateToLanding is not a function");
+    }
   };
   const do_Logout = () => {
     localStorage.removeItem("siswa_token");
     localStorage.removeItem("isLogin");
     handleNavigateToLanding();
+    // if (typeof navigateToDashboard === "function") {
+    //   // navigateToDashboard();
+    //   // navigateToSoal();
+    //   handleNavigateToDashboard();
+    // } else {
+    //   console.error("navigateToDashboard is not a function");
+    // }
   };
   let CssAside = `fixed z-20 h-full top-14 left-0 pt-4 flex lg:flex flex-shrink-0 flex-col w-80 lg:w-72 transition-width duration-75 bg-gray-50 shadow`;
   return (
@@ -118,7 +142,14 @@ const Sidebar = () => {
             <div class="flex-1 px-0 space-y-1">
               <ul class="menu menu-sm lg:menu-md px-4 py-0">
                 {/* komponen ujian */}
-                {waktuUjian.count > 0 ? <UjianComponent /> : ""}
+                {waktuUjian.count > 0 ? (
+                  <UjianComponent
+                    navigateToSoal={navigateToSoal}
+                    navigateToPaket={handleNavigateToPaket}
+                  />
+                ) : (
+                  ""
+                )}
 
                 {/* komponen ujian */}
                 <li class="menu-title  gap-4 hidden md:flex flex-row ">
@@ -226,28 +257,36 @@ const Sidebar = () => {
   );
 };
 
-const UjianComponent = () => {
+const UjianComponent = ({ navigateToSoal, navigateToPaket }) => {
   const context = useContext(MyContext);
+  if (typeof navigateToSoal === "function") {
+    navigateToSoal();
+  } else {
+    console.error("navigateToDashboard is not a function");
+  }
   const fn_goto_soal = (nomerSoal) => {
     fn_getsoal_dari_mapelAktif(nomerSoal);
-    context.navigateToSoal(nomerSoal);
+    navigateToSoal(nomerSoal);
+    // router.navigate(`/siswa/ujian/lintas/${nomerSoal}`);
   };
+
+  const handleNavigateToPaket = useContext(MyContext);
 
   const fn_do_finish = async () => {
     if (confirm("Apakah anda yakin mengkhiri mapel ini?")) {
       console.log(stateUjianLintasStore.mapel_aktif?.id);
       try {
-        const response = await ApiNode.post(
-          `studiv3/siswa/ujianstudi/vless/paketsoal/${stateUjianLintasStore.mapel_aktif?.id}/do_finish`
-        );
-        console.log("ujian berhasil diakhiri");
-        stop();
-        setstateUjianLintasStore("mapel_aktif", null);
-        setstateUjianLintasStore("semua_mapel", null);
-        setstateUjianLintasStore("soal_aktif", null);
+        // const response = await ApiNode.post(
+        //   `studiv3/siswa/ujianstudi/vless/paketsoal/${stateUjianLintasStore.mapel_aktif?.id}/do_finish`
+        // );
+        // console.log("ujian berhasil diakhiri");
+        // handleNavigateToPaket;
+        // stop();
+        // setstateUjianLintasStore("mapel_aktif", null);
+        // setstateUjianLintasStore("semua_mapel", null);
         //   // toast
         //   //redirect
-        context.navigateToPaket();
+        handleNavigateToPaket();
       } catch (error) {
         console.log("ujian gagal diakhiri");
         console.error(error);

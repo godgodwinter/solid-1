@@ -1,17 +1,21 @@
 import { A } from "@solidjs/router";
-import ApiNode from "@/axios/axiosNode";
+import {
+  QueryClient,
+  QueryClientProvider,
+  createQuery,
+} from "@tanstack/solid-query";
+import { Match, Switch, createEffect } from "solid-js";
+import { run } from "../lintas/waktuUjianStore";
 import {
   fn_get_sisa_waktu,
   isExamFinished,
 } from "../../../helpers/BabengFungsi";
-import { Match, Switch, createSignal, onCleanup } from "solid-js";
 
 const VITE_API_URL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL
   : "http://localhost:11000/";
 
 export const get_Mapel = async () => {
-  console.log("load getMapel Async");
   try {
     const response = await ApiNode.get(
       `studiv3/siswa/ujianstudi/vless/get_aspekdetail_tersedia`
@@ -31,65 +35,70 @@ export const get_Mapel = async () => {
   }
 };
 
-const PaketsoalData = () => {
-  const [dataRes, setDataRes] = createSignal(null);
-  const [loading, setLoading] = createSignal(true);
-  const [error, setError] = createSignal(false);
+const queryClient = new QueryClient({
+  // defaultConfig: {
+  //   cacheTime: 60000, // Cache data selama 60 detik (1 menit)
+  // },
+});
 
-  const getData = async () => {
-    console.log("load getData");
-    try {
-      const res = await get_Mapel();
-      if (res) {
-        setDataRes(res);
-        setLoading(false);
-      }
-    } catch (err) {
-      setLoading(false);
-      setError(true);
+const fn_fetcher = async (key) => {
+  try {
+    const siswaToken = localStorage.getItem("siswa_token");
+    const headers = {};
+    if (siswaToken) {
+      headers["Authorization"] = `Bearer ${siswaToken}`;
     }
-  };
-  // Panggil getData saat komponen ini dipasang.
-  getData();
-
-  // Membersihkan sinyal saat komponen di-unmount (opsional).
-  onCleanup(() => {
-    setDataRes(null);
-    setLoading(false);
-    setError(false);
-  });
+    const response = await fetch(
+      `${VITE_API_URL}api/v2/studiv3/siswa/ujianstudi/vless/get_aspekdetail_tersedia`,
+      {
+        headers,
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch data");
+    }
+    // run(10); //!contoh running setelah mendapatkan data
+    return response.json();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+const PaketsoalData = () => {
+  const query = createQuery(() => ["repoDataPaket"], fn_fetcher);
+  // console.log("repoDataPaket:", query.data);
   return (
-    <>
-      {() => (
-        <Switch>
-          <Match when={loading()}>
-            <div className="space-y-2">
-              {/* Tampilkan komponen loading */}
-              <LoadingComponent />
-              <SkeletonPaket />
-            </div>
-          </Match>
-          <Match when={error()}>
-            {/* Tampilkan pesan error jika terjadi kesalahan */}
-            <FailedComponent message="Gagal mendapatkan data!" />
-          </Match>
-          <Match when={dataRes() && dataRes().length > 0}>
-            {/* Tampilkan komponen PaketCard1 jika dataRes ada dan memiliki data */}
-            <PaketCard1 data={dataRes()} />
-          </Match>
-          <Match>
-            {/* Tampilkan pesan error jika dataRes tidak ada atau kosong */}
-            <FailedComponent message={`Paket Tidak Tersedia`} />
-          </Match>
-        </Switch>
-      )}
-    </>
+    <Switch>
+      <Match when={query.isLoading}>
+        {" "}
+        <div className="space-y-2">
+          <LoadingComponent />
+          <SkeletonPaket />
+        </div>
+      </Match>
+      <Match when={query.isError}>
+        <FailedComponent message={query.error.message} />
+      </Match>
+      <Match when={query.isSuccess}>
+        {query.data.data.length > 0 ? (
+          <>
+            <PaketCard1 data={query.data.data} />
+          </>
+        ) : (
+          <FailedComponent message={`Paket Tidak Tersedia`} />
+        )}
+      </Match>
+    </Switch>
   );
 };
 
 const Paketsoal = () => {
   // console.log("aa");
-  return <PaketsoalData />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <PaketsoalData />
+    </QueryClientProvider>
+  );
 };
 
 const PaketIndex = () => {
