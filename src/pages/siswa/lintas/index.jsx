@@ -256,16 +256,6 @@ const SoalUjianComponent = ({ data, navigateToSoal }) => {
                     class="btn btn-sm btn-accent"
                   >
                     Sebelumnya
-                    {/* {" "}
-                    {`${
-                      parseInt(
-                        stateUjianLintasStore.soal_aktif
-                          ? stateUjianLintasStore.soal_aktif.nomerSoal
-                          : 1
-                      ) - 1
-                    }`} */}
-                    {/* {stateUjianLintasStore.soal_aktif.nomerSoal} */}
-                    {/* {data ? data.nomerSoal : 1} */}
                   </button>
                   <button
                     onClick={() =>
@@ -282,12 +272,11 @@ const SoalUjianComponent = ({ data, navigateToSoal }) => {
                         stateUjianLintasStore.soal_aktif
                           ? stateUjianLintasStore.soal_aktif.nomerSoal
                           : 1
-                      ) >=
-                      stateUjianLintasStore.mapel_aktif.soal.length - 1
+                      ) >= stateUjianLintasStore.mapel_aktif.soal.length
                     }
                     class="btn btn-sm btn-info"
                   >
-                    Selanjutnya
+                    Selanjutnya{" "}
                   </button>
                 </div>
               </div>
@@ -403,16 +392,6 @@ const SoalUjianComponent = ({ data, navigateToSoal }) => {
                     class="btn btn-sm btn-accent"
                   >
                     Sebelumnya
-                    {/* {" "}
-                    {`${
-                      parseInt(
-                        stateUjianLintasStore.soal_aktif
-                          ? stateUjianLintasStore.soal_aktif.nomerSoal
-                          : 1
-                      ) - 1
-                    }`} */}
-                    {/* {stateUjianLintasStore.soal_aktif.nomerSoal} */}
-                    {/* {data ? data.nomerSoal : 1} */}
                   </button>
                   <button
                     onClick={() =>
@@ -429,12 +408,11 @@ const SoalUjianComponent = ({ data, navigateToSoal }) => {
                         stateUjianLintasStore.soal_aktif
                           ? stateUjianLintasStore.soal_aktif.nomerSoal
                           : 1
-                      ) >=
-                      stateUjianLintasStore.mapel_aktif.soal.length - 1
+                      ) >= stateUjianLintasStore.mapel_aktif.soal.length
                     }
                     class="btn btn-sm btn-info"
                   >
-                    Selanjutnya
+                    Selanjutnya{" "}
                   </button>
                 </div>
               </div>
