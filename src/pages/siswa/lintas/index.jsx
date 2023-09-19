@@ -16,7 +16,13 @@ import {
 } from "./prosesUjianStore";
 import Api from "@/axios/axios";
 import ApiNode from "@/axios/axiosNode";
-import { fnNumberToAlphabet } from "../../../helpers/BabengFungsi";
+import {
+  fnNumberToAlphabet,
+  periksaJawaban,
+} from "../../../helpers/BabengFungsi";
+import { loaderStore, loader_run } from "./loaderStore";
+import FakeLoadingComponent from "./FakeLoadingComponent";
+import toast from "solid-toast";
 
 // const do_run_timer = (durasi) => {
 //   console.log("cliked btn");
@@ -25,6 +31,7 @@ import { fnNumberToAlphabet } from "../../../helpers/BabengFungsi";
 // };
 
 const UjianIndex = () => {
+  loader_run(loaderStore.default);
   const navigate = useNavigate();
   const navigateToSoal = (nomerSoal = 1) => {
     navigate(`/siswa/ujian/lintas/${nomerSoal}`, { replace: true });
@@ -57,14 +64,19 @@ const UjianIndex = () => {
           </button>
         </div>
       </div> */}
-      <section className="">
-        <div className=" space-y-2">
-          <SoalContainer
-            navigateToSoal={navigateToSoal}
-            navigateToPaket={navigateToPaket}
-          />
-        </div>
-      </section>
+
+      {loaderStore.fakeLoading > 0 ? (
+        <FakeLoadingComponent />
+      ) : (
+        <section className="">
+          <div className=" space-y-2">
+            <SoalContainer
+              navigateToSoal={navigateToSoal}
+              navigateToPaket={navigateToPaket}
+            />
+          </div>
+        </section>
+      )}
     </>
   );
 };
@@ -121,12 +133,20 @@ const SoalContainer = ({ navigateToSoal, navigateToPaket }) => {
 
 const SoalUjianComponent = ({ data, navigateToSoal }) => {
   const handleNavigateToSoal = (nomerSoal) => {
+    scrollToTop();
     if (typeof navigateToSoal === "function") {
       fn_getsoal_dari_mapelAktif(nomerSoal);
       navigateToSoal(nomerSoal);
     } else {
       console.error("navigateToSoal is not a function");
     }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth", // Gunakan "smooth" untuk animasi pergerakan
+    });
   };
   // const data = props.data;
   const do_save_jawaban = async (
@@ -135,6 +155,8 @@ const SoalUjianComponent = ({ data, navigateToSoal }) => {
     soal_id,
     nomerSoal
   ) => {
+    scrollToTop();
+    loader_run(loaderStore.default);
     // console.log(itemSoal, nomerSoal);
     // itemSoal.kode_jawaban = kode_jawaban;
 
@@ -182,7 +204,14 @@ const SoalUjianComponent = ({ data, navigateToSoal }) => {
       // console.log("====================================");
       // console.log("berhasil menyimpan jawaban!");
       // console.log("====================================");
+
+      toast.success("Berhasil disimpan!", {
+        duration: loaderStore.toastDefault,
+      });
     } catch (error) {
+      toast.error("Gagal menyimpan!", {
+        duration: loaderStore.toastDefault,
+      });
       // setTimeout(fnPending, defaultPendingLogin, false);
       console.error(error);
     }
@@ -266,23 +295,25 @@ const SoalUjianComponent = ({ data, navigateToSoal }) => {
                     <div class="divider"></div>
                     <span class="font-extralight text-xs">
                       <span class="font-bold">
-                        Status tombol simpan :
-                        <span
+                        Jawaban Tersimpan :
+                        {/* <span
                           class="text-error font-bold"
                           v-if="buttonSaveDisabled > 0"
                         >
                           Mohon Tunggu !{" "}
-                          {/* <img
-                          src="@/assets/img/animate/native-loader-2.svg"
-                          class="text-white fill-current px-2"
-                          alt=""
-                        /> */}
                         </span>
                         <span class="text-success font-bold" v-else>
                           Bisa menyimpan!
-                        </span>
+                        </span> */}
                       </span>
-                      <span>Jawaban</span>
+                      <span
+                        className="text-sky-500 font-bold
+                      "
+                      >
+                        {" "}
+                        {/* Jawaban */}
+                        {periksaJawaban(data, data.kode_jawaban)}
+                      </span>
                     </span>
                   </div>
                 </div>

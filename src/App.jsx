@@ -66,7 +66,7 @@ export default function App() {
   const Routes = useRoutes(routes);
   return (
     <>
-      <Toaster position="top-right" gutter={8} />
+      <Toaster position="bottom-right" gutter={8} />
       {/* <nav>
         <A href="/">Home</A>
         <A href="/about">About</A>

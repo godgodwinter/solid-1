@@ -1,7 +1,14 @@
 import { A, Outlet, useNavigate } from "@solidjs/router";
 import toast from "solid-toast";
-import { isSidebarOpen, toggleSidebar } from "./layoutStore";
+import { isSidebarOpen, setIsSidebarOpen, toggleSidebar } from "./layoutStore";
 import { run, setwaktuUjian, stop, waktuUjian } from "./lintas/waktuUjianStore";
+import {
+  loader_run,
+  loader_stop,
+  loader_get,
+  loaderStore,
+  setLoaderStore,
+} from "./lintas/loaderStore";
 import {
   stateUjianLintasStore,
   setstateUjianLintasStore,
@@ -13,7 +20,7 @@ import {
   formatSecondsToMinutesAndSeconds,
   periksaJawaban,
 } from "../../helpers/BabengFungsi";
-import { createContext, useContext } from "solid-js";
+import { createContext, createEffect, useContext } from "solid-js";
 
 export const get_PeriksaUjianAktif = async () => {
   try {
@@ -48,6 +55,7 @@ const fn_periksa_Auth = () => {
 };
 
 export const MyContext = createContext();
+
 const SiswaLayout = () => {
   const navigate = useNavigate();
   const isAuth = fn_periksa_Auth();
@@ -66,15 +74,49 @@ const SiswaLayout = () => {
       navigate("/siswa/paket", { replace: true });
     },
     navigateToSoal: (nomerSoal = 1) => {
+      scrollToTop();
+      setIsSidebarOpen("sidebar", false);
       navigate(`/siswa/ujian/lintas/${nomerSoal}`, { replace: true });
     },
   };
 
   get_PeriksaUjianAktif();
   // const contextValue = navigateToPaket();
+
+  // createEffect(() => {
+  //   // Jalankan loader_run(4) saat komponen dimuat
+  //   loader_run(loaderStore.default);
+  // });
   return (
     <>
+      {/* {`${loaderStore.fakeLoading}`} */}
       <MyContext.Provider value={contextValue}>
+        {/* Tampilkan loading jika fakeLoading > 0 */}
+        {/* {loaderStore.fakeLoading > 0 ? (
+          <div className="min-h-screen flex items-center justify-center bg-gray-100">
+            <div className="text-center space-y-2">
+              <h1>Mohon Tunggu !</h1>
+              <LoadingPages />
+            </div>
+          </div>
+        ) : (
+          <div>
+            <LayoutContent />
+          </div>
+        )} */}
+
+        <div>
+          <LayoutContent />
+        </div>
+      </MyContext.Provider>
+    </>
+  );
+};
+
+const LayoutContent = () => {
+  return (
+    <>
+      <div>
         <Navbar />
         <Sidebar />
         <div class="flex overflow-hidden pt-24 px-2 bg-base-100">
@@ -85,7 +127,7 @@ const SiswaLayout = () => {
             </main>
           </div>
         </div>
-      </MyContext.Provider>
+      </div>
     </>
   );
 };
@@ -226,6 +268,13 @@ const Sidebar = () => {
   );
 };
 
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth", // Gunakan "smooth" untuk animasi pergerakan
+  });
+};
+
 const UjianComponent = () => {
   const context = useContext(MyContext);
   const fn_goto_soal = (nomerSoal) => {
@@ -235,7 +284,7 @@ const UjianComponent = () => {
 
   const fn_do_finish = async () => {
     if (confirm("Apakah anda yakin mengkhiri mapel ini?")) {
-      console.log(stateUjianLintasStore.mapel_aktif?.id);
+      // console.log(stateUjianLintasStore.mapel_aktif?.id);
       try {
         const response = await ApiNode.post(
           `studiv3/siswa/ujianstudi/vless/paketsoal/${stateUjianLintasStore.mapel_aktif?.id}/do_finish`
@@ -248,7 +297,14 @@ const UjianComponent = () => {
         //   // toast
         //   //redirect
         context.navigateToPaket();
+        toast.success("Ujian Mapel ini Berhasil di akhiri!", {
+          duration: loaderStore.toastDefault,
+        });
+        setIsSidebarOpen("sidebar", false);
       } catch (error) {
+        toast.error("Ujian gagal diakhiri!", {
+          duration: loaderStore.toastDefault,
+        });
         console.log("ujian gagal diakhiri");
         console.error(error);
       }
@@ -426,3 +482,66 @@ const NavbarTimer = () => {
 };
 
 export default SiswaLayout;
+
+export const LoadingPages = () => {
+  return (
+    <>
+      <div
+        class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] text-primary motion-reduce:animate-[spin_1.5s_linear_infinite]"
+        role="status"
+      >
+        <span class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+          Loading...
+        </span>
+      </div>
+      <div
+        class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] text-secondary motion-reduce:animate-[spin_1.5s_linear_infinite]"
+        role="status"
+      >
+        <span class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+          Loading...
+        </span>
+      </div>
+      <div
+        class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] text-success motion-reduce:animate-[spin_1.5s_linear_infinite]"
+        role="status"
+      >
+        <span class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+          Loading...
+        </span>
+      </div>
+      <div
+        class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] text-danger motion-reduce:animate-[spin_1.5s_linear_infinite]"
+        role="status"
+      >
+        <span class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+          Loading...
+        </span>
+      </div>
+      <div
+        class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] text-warning motion-reduce:animate-[spin_1.5s_linear_infinite]"
+        role="status"
+      >
+        <span class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+          Loading...
+        </span>
+      </div>
+      <div
+        class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] text-info motion-reduce:animate-[spin_1.5s_linear_infinite]"
+        role="status"
+      >
+        <span class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+          Loading...
+        </span>
+      </div>
+      <div
+        class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] text-neutral-100 motion-reduce:animate-[spin_1.5s_linear_infinite]"
+        role="status"
+      >
+        <span class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+          Loading...
+        </span>
+      </div>
+    </>
+  );
+};

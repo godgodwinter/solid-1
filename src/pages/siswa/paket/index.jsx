@@ -4,14 +4,16 @@ import {
   fn_get_sisa_waktu,
   isExamFinished,
 } from "../../../helpers/BabengFungsi";
-import { Match, Switch, createSignal, onCleanup } from "solid-js";
+import { Match, Switch, createEffect, createSignal, onCleanup } from "solid-js";
+import { loaderStore, loader_run } from "../lintas/loaderStore";
+import { FakeLoadingComponent } from "../lintas/FakeLoadingComponent";
 
 const VITE_API_URL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL
   : "http://localhost:11000/";
 
 export const get_Mapel = async () => {
-  console.log("load getMapel Async");
+  // console.log("load getMapel Async");
   try {
     const response = await ApiNode.get(
       `studiv3/siswa/ujianstudi/vless/get_aspekdetail_tersedia`
@@ -93,12 +95,24 @@ const Paketsoal = () => {
 };
 
 const PaketIndex = () => {
+  loader_run(loaderStore.default);
+  // createEffect(() => {
+  //   // Jalankan loader_run sekali
+  //   loader_run(loaderStore.default); // Ganti dengan durasi yang sesuai
+  //   // onCleanup(() => {
+  //   //   // Hapus efek ini pada unmount komponen
+  //   // });
+  // });
   return (
     <>
-      <div>
-        <Paketsoal />
-        {/* <SkeletonPaket /> */}
-      </div>
+      {loaderStore.fakeLoading > 0 ? (
+        <FakeLoadingComponent />
+      ) : (
+        // Jika fakeLoading = 0, tampilkan konten
+        <div>
+          <Paketsoal />
+        </div>
+      )}
     </>
   );
 };

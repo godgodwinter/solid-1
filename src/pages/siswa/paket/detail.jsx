@@ -20,6 +20,10 @@ import { Match, Show, Switch, createEffect } from "solid-js";
 
 import { formatDateToYYYYMMDDHHIIStr } from "../../../helpers/BabengFungsi";
 import { get_PeriksaUjianAktif } from "../layout";
+import { loaderStore, loader_run } from "../lintas/loaderStore";
+import FakeLoadingComponent from "../lintas/FakeLoadingComponent";
+import toast from "solid-toast";
+import { setIsSidebarOpen } from "../layoutStore";
 
 const VITE_API_URL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL
@@ -104,18 +108,32 @@ const PaketsoalDetail = ({ key, navigateToSoal }) => {
 };
 
 const PaketDetail = () => {
+  loader_run(loaderStore.default);
   const params = useParams();
   const paketdetail_id = params.id;
   const navigate = useNavigate();
   const navigateToSoal = (nomerSoal = 1) => {
     navigate(`/siswa/ujian/lintas/${nomerSoal}`, { replace: true });
   };
+
   return (
     <>
+      {loaderStore.fakeLoading > 0 ? (
+        <FakeLoadingComponent />
+      ) : (
+        <div>
+          {" "}
+          <PaketsoalDetail
+            key={paketdetail_id}
+            navigateToSoal={navigateToSoal}
+          />
+        </div>
+      )}
+
       {/* PaketDetail {paketdetail_id} */}
-      <div>
+      {/* <div>
         <PaketsoalDetail key={paketdetail_id} navigateToSoal={navigateToSoal} />
-      </div>
+      </div> */}
     </>
   );
 };
@@ -134,53 +152,69 @@ const PaketDetailCard = ({ data, navigateToSoal }) => {
   // const navigateToSoal = props.navigateToSoal;
 
   const do_Daftar = async () => {
-    const timer = waktuUjian.count;
-    if (timer == 0) {
-      let tgl_mulai = new Date();
+    const scrollToTop = () => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth", // Gunakan "smooth" untuk animasi pergerakan
+      });
+    };
+    if (confirm("Apakah anda yakin memulai ujian mapel ini?")) {
+      const timer = waktuUjian.count;
+      if (timer == 0) {
+        let tgl_mulai = new Date();
 
-      let waktuTambahan = data?.waktu;
-      // let waktuTambahan = 15;
-      let tgl_selesai = new Date(tgl_mulai.getTime() + waktuTambahan * 60000); // 60000 milidetik dalam satu menit
+        let waktuTambahan = data?.waktu;
+        // let waktuTambahan = 15;
+        let tgl_selesai = new Date(tgl_mulai.getTime() + waktuTambahan * 60000); // 60000 milidetik dalam satu menit
 
-      // const tgl_mulaiFormatted = formatDateToYYYYMMDDHHIIStr(tgl_mulai);
-      // const tgl_selesaiFormatted = formatDateToYYYYMMDDHHIIStr(tgl_selesai);
-      const tgl_mulaiFormatted = tgl_mulai;
-      const tgl_selesaiFormatted = tgl_selesai;
+        // const tgl_mulaiFormatted = formatDateToYYYYMMDDHHIIStr(tgl_mulai);
+        // const tgl_selesaiFormatted = formatDateToYYYYMMDDHHIIStr(tgl_selesai);
+        const tgl_mulaiFormatted = tgl_mulai;
+        const tgl_selesaiFormatted = tgl_selesai;
 
-      console.log(
-        `${tgl_mulaiFormatted},${tgl_selesaiFormatted},${tgl_mulai},${waktuTambahan}`
-      );
-      // console.log("Tanggal Mulai:", tgl_mulaiFormatted);
-      // console.log("Tanggal Selesai:", tgl_selesaiFormatted);
-      // console.log("Mulai");
-      try {
-        let dataFormSend = {
-          tgl_mulai: tgl_mulaiFormatted,
-          tgl_selesai: tgl_selesaiFormatted,
-          aspekdetail_index: paketdetail_id,
-        };
-        const response = await ApiNode.post(
-          `studiv3/siswa/ujianstudi/vless/paketsoal/${paketdetail_id}/do_mulai`,
-          dataFormSend
+        console.log(
+          `${tgl_mulaiFormatted},${tgl_selesaiFormatted},${tgl_mulai},${waktuTambahan}`
         );
-        // console.log(response);
-        get_PeriksaUjianAktif();
-        handleNavigateToSoal(1);
-        // await get_PeriksaUjianAktif();
-        // console.log(response);
-        // setTimeout(fnPending, 2000, false);
-        // await setTimeout(btnLoading.value = false, 2000, 'argumen example');
+        // console.log("Tanggal Mulai:", tgl_mulaiFormatted);
+        // console.log("Tanggal Selesai:", tgl_selesaiFormatted);
+        // console.log("Mulai");
+        try {
+          let dataFormSend = {
+            tgl_mulai: tgl_mulaiFormatted,
+            tgl_selesai: tgl_selesaiFormatted,
+            aspekdetail_index: paketdetail_id,
+          };
+          const response = await ApiNode.post(
+            `studiv3/siswa/ujianstudi/vless/paketsoal/${paketdetail_id}/do_mulai`,
+            dataFormSend
+          );
+          // console.log(response);
+          get_PeriksaUjianAktif();
+          handleNavigateToSoal(1);
+          // await get_PeriksaUjianAktif();
+          // console.log(response);
+          // setTimeout(fnPending, 2000, false);
+          // await setTimeout(btnLoading.value = false, 2000, 'argumen example');
 
-        return true;
-      } catch (error) {
+          scrollToTop();
+          toast.success("Ujian berhasil dimulai!", {
+            duration: loaderStore.toastDefault,
+          });
+          setIsSidebarOpen("sidebar", false);
+          return true;
+        } catch (error) {
+          // setTimeout(fnPending, defaultPendingLogin, false);
+          console.error(error);
+        }
         // setTimeout(fnPending, defaultPendingLogin, false);
-        console.error(error);
+      } else {
+        toast.error("Ujian gagal dimulai!", {
+          duration: loaderStore.toastDefault,
+        });
+        console.log("====================================");
+        console.log("Gagal daftar,Selesaikan dahulu paket sebelumnya.");
+        console.log("====================================");
       }
-      // setTimeout(fnPending, defaultPendingLogin, false);
-    } else {
-      console.log("====================================");
-      console.log("Gagal daftar,Selesaikan dahulu paket sebelumnya.");
-      console.log("====================================");
     }
   };
 

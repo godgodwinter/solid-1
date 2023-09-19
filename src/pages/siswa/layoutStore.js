@@ -9,4 +9,4 @@ const toggleSidebar = () => {
   setIsSidebarOpen("sidebar", !isSidebarOpen.sidebar);
 };
 
-export { isSidebarOpen, toggleSidebar };
+export { isSidebarOpen, toggleSidebar, setIsSidebarOpen };
