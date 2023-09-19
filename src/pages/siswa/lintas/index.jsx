@@ -249,11 +249,21 @@ const SoalUjianComponent = ({ data, navigateToSoal }) => {
                         stateUjianLintasStore.soal_aktif
                           ? stateUjianLintasStore.soal_aktif.nomerSoal
                           : 1
-                      ) <= 0
+                      ) -
+                        1 <=
+                      0
                     }
                     class="btn btn-sm btn-accent"
                   >
                     Sebelumnya
+                    {/* {" "}
+                    {`${
+                      parseInt(
+                        stateUjianLintasStore.soal_aktif
+                          ? stateUjianLintasStore.soal_aktif.nomerSoal
+                          : 1
+                      ) - 1
+                    }`} */}
                     {/* {stateUjianLintasStore.soal_aktif.nomerSoal} */}
                     {/* {data ? data.nomerSoal : 1} */}
                   </button>
@@ -386,11 +396,22 @@ const SoalUjianComponent = ({ data, navigateToSoal }) => {
                         stateUjianLintasStore.soal_aktif
                           ? stateUjianLintasStore.soal_aktif.nomerSoal
                           : 1
-                      ) <= 0
+                      ) -
+                        1 <=
+                      0
                     }
                     class="btn btn-sm btn-accent"
                   >
                     Sebelumnya
+                    {/* {" "}
+                    {`${
+                      parseInt(
+                        stateUjianLintasStore.soal_aktif
+                          ? stateUjianLintasStore.soal_aktif.nomerSoal
+                          : 1
+                      ) - 1
+                    }`} */}
+                    {/* {stateUjianLintasStore.soal_aktif.nomerSoal} */}
                     {/* {data ? data.nomerSoal : 1} */}
                   </button>
                   <button

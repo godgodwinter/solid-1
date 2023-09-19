@@ -1,12 +1,21 @@
-import { A } from "@solidjs/router";
+import { A, useNavigate } from "@solidjs/router";
 import ApiNode from "@/axios/axiosNode";
 import {
   fn_get_sisa_waktu,
   isExamFinished,
 } from "../../../helpers/BabengFungsi";
-import { Match, Switch, createEffect, createSignal, onCleanup } from "solid-js";
+import {
+  Match,
+  Switch,
+  createContext,
+  createEffect,
+  createSignal,
+  onCleanup,
+  useContext,
+} from "solid-js";
 import { loaderStore, loader_run } from "../lintas/loaderStore";
 import { FakeLoadingComponent } from "../lintas/FakeLoadingComponent";
+import { setIsSidebarOpen } from "../layoutStore";
 
 const VITE_API_URL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL
@@ -39,7 +48,7 @@ const PaketsoalData = () => {
   const [error, setError] = createSignal(false);
 
   const getData = async () => {
-    console.log("load getData");
+    // console.log("load getData");
     try {
       const res = await get_Mapel();
       if (res) {
@@ -89,12 +98,27 @@ const PaketsoalData = () => {
   );
 };
 
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth", // Gunakan "smooth" untuk animasi pergerakan
+  });
+};
 const Paketsoal = () => {
   // console.log("aa");
   return <PaketsoalData />;
 };
 
+export const MyContextPaketIndex = createContext();
 const PaketIndex = () => {
+  const navigate = useNavigate();
+  const contextValue = {
+    navigateToSoal: (nomerSoal = 1) => {
+      scrollToTop();
+      setIsSidebarOpen("sidebar", false);
+      navigate(`/siswa/ujian/lintas/${nomerSoal}`, { replace: true });
+    },
+  };
   loader_run(loaderStore.default);
   // createEffect(() => {
   //   // Jalankan loader_run sekali
@@ -105,14 +129,16 @@ const PaketIndex = () => {
   // });
   return (
     <>
-      {loaderStore.fakeLoading > 0 ? (
-        <FakeLoadingComponent />
-      ) : (
-        // Jika fakeLoading = 0, tampilkan konten
-        <div>
-          <Paketsoal />
-        </div>
-      )}
+      <MyContextPaketIndex.Provider value={contextValue}>
+        {loaderStore.fakeLoading > 0 ? (
+          <FakeLoadingComponent />
+        ) : (
+          // Jika fakeLoading = 0, tampilkan konten
+          <div>
+            <Paketsoal />
+          </div>
+        )}
+      </MyContextPaketIndex.Provider>
     </>
   );
 };
@@ -204,13 +230,18 @@ const PaketItemComponent_Selesai = (props) => {
   );
 };
 const PaketItemComponent_Proses = (props) => {
+  const context = useContext(MyContextPaketIndex);
   const item = props.data;
   const no = props.no;
+  const handleNavigateToSoal = () => {
+    context.navigateToSoal();
+  };
   return (
     <li>
       <a
         href="#"
         class="flex items-center p-3 text-base font-bold text-gray-900 rounded-lg bg-gray-50 hover:bg-gray-100 group hover:shadow "
+        onClick={handleNavigateToSoal}
       >
         <svg
           aria-hidden="true"

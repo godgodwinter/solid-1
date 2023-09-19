@@ -1,7 +1,7 @@
 import { createStore } from "solid-js/store";
 
 const [waktuUjian, setwaktuUjian] = createStore({
-  count: 0,
+  count: -1,
 });
 
 let timerId; // Variabel untuk menyimpan ID timer

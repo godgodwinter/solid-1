@@ -106,7 +106,7 @@ const doubledCount = () => 2 * count();
 const fn_increment_count = () => {
   setCount(2 * count());
 };
-createEffect(() => console.log("count =", count()));
+// createEffect(() => console.log("count =", count()));
 
 const Home = () => {
   const notify = () => toast.success("Here is your toast.");

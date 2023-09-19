@@ -25,7 +25,7 @@ const loader_run = (durasi) => {
       clearInterval(timerId);
     } else {
       setLoaderStore("fakeLoading", loaderStore.fakeLoading - 1);
-      console.log(loaderStore.fakeLoading); // Mengecek fakeLoading tiap detiknya
+      // console.log(loaderStore.fakeLoading); // Mengecek fakeLoading tiap detiknya
     }
   }, 1000);
 };

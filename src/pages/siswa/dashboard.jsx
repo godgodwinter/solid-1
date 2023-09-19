@@ -5,6 +5,8 @@ import {
   createQuery,
 } from "@tanstack/solid-query";
 import { Match, Switch } from "solid-js";
+import { loaderStore, loader_run } from "./lintas/loaderStore";
+import FakeLoadingComponent from "./lintas/FakeLoadingComponent";
 
 const VITE_API_URL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL
@@ -49,11 +51,26 @@ const ProfileData = () => {
   );
 };
 
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth", // Gunakan "smooth" untuk animasi pergerakan
+  });
+};
 const Profile = () => {
+  scrollToTop();
+  loader_run(loaderStore.default);
   // console.log("aa");
   return (
     <QueryClientProvider client={queryClient}>
-      <ProfileData />
+      {loaderStore.fakeLoading > 0 ? (
+        <FakeLoadingComponent />
+      ) : (
+        <div>
+          {" "}
+          <ProfileData />
+        </div>
+      )}
     </QueryClientProvider>
   );
 };

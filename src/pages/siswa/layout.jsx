@@ -65,12 +65,15 @@ const SiswaLayout = () => {
 
   const contextValue = {
     navigateToLanding: () => {
+      setIsSidebarOpen("sidebar", false);
       navigate("/", { replace: true });
     },
     navigateToDashboard: () => {
+      setIsSidebarOpen("sidebar", false);
       navigate("/siswa/dashboard", { replace: true });
     },
     navigateToPaket: () => {
+      setIsSidebarOpen("sidebar", false);
       navigate("/siswa/paket", { replace: true });
     },
     navigateToSoal: (nomerSoal = 1) => {
@@ -141,12 +144,32 @@ const Sidebar = () => {
   const handleNavigateToPaket = () => {
     context.navigateToPaket();
   };
+  const handlePindahHalaman = () => {
+    scrollToTop();
+    setIsSidebarOpen("sidebar", false);
+  };
   const do_Logout = () => {
-    localStorage.removeItem("siswa_token");
-    localStorage.removeItem("isLogin");
-    handleNavigateToLanding();
+    if (confirm("Apakah anda yakin untuk Logout?")) {
+      localStorage.removeItem("siswa_token");
+      localStorage.removeItem("isLogin");
+      handleNavigateToLanding();
+      //toast
+
+      scrollToTop();
+      toast.success("Logout berhasil!", {
+        duration: loaderStore.toastDefault,
+      });
+    }
   };
   let CssAside = `fixed z-20 h-full top-14 left-0 pt-4 flex lg:flex flex-shrink-0 flex-col w-80 lg:w-72 transition-width duration-75 bg-gray-50 shadow`;
+
+  createEffect(() => {
+    // console.log(waktuUjian.count);
+    if (waktuUjian.count == 0) {
+      //redirect ke paket
+      handleNavigateToPaket();
+    }
+  });
   return (
     <>
       <aside
@@ -182,7 +205,7 @@ const Sidebar = () => {
                 </li>
                 <ul class="menu menu-sm lg:menu-md px-4 py-0">
                   <li>
-                    <A href="/siswa/paket">
+                    <A href="/siswa/paket" onclick={handlePindahHalaman}>
                       <span>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -209,7 +232,7 @@ const Sidebar = () => {
                     </A>
                   </li>
                   <li>
-                    <A href="/siswa/dashboard">
+                    <A href="/siswa/dashboard" onclick={handlePindahHalaman}>
                       <span>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -278,6 +301,7 @@ const scrollToTop = () => {
 const UjianComponent = () => {
   const context = useContext(MyContext);
   const fn_goto_soal = (nomerSoal) => {
+    setIsSidebarOpen("sidebar", false);
     fn_getsoal_dari_mapelAktif(nomerSoal);
     context.navigateToSoal(nomerSoal);
   };

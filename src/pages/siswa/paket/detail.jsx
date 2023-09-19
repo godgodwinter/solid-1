@@ -160,7 +160,7 @@ const PaketDetailCard = ({ data, navigateToSoal }) => {
     };
     if (confirm("Apakah anda yakin memulai ujian mapel ini?")) {
       const timer = waktuUjian.count;
-      if (timer == 0) {
+      if (timer < 1) {
         let tgl_mulai = new Date();
 
         let waktuTambahan = data?.waktu;
@@ -172,9 +172,9 @@ const PaketDetailCard = ({ data, navigateToSoal }) => {
         const tgl_mulaiFormatted = tgl_mulai;
         const tgl_selesaiFormatted = tgl_selesai;
 
-        console.log(
-          `${tgl_mulaiFormatted},${tgl_selesaiFormatted},${tgl_mulai},${waktuTambahan}`
-        );
+        // console.log(
+        //   `${tgl_mulaiFormatted},${tgl_selesaiFormatted},${tgl_mulai},${waktuTambahan}`
+        // );
         // console.log("Tanggal Mulai:", tgl_mulaiFormatted);
         // console.log("Tanggal Selesai:", tgl_selesaiFormatted);
         // console.log("Mulai");
@@ -208,6 +208,9 @@ const PaketDetailCard = ({ data, navigateToSoal }) => {
         }
         // setTimeout(fnPending, defaultPendingLogin, false);
       } else {
+        toast.error("Ujian gagal dimulai!", {
+          duration: loaderStore.toastDefault,
+        });
         toast.error("Ujian gagal dimulai!", {
           duration: loaderStore.toastDefault,
         });
@@ -292,7 +295,7 @@ const PaketDetailCard = ({ data, navigateToSoal }) => {
             </div>
           </Show>
 
-          <Show when={waktuUjian.count == 0}>
+          <Show when={waktuUjian.count < 1}>
             <div>
               <div class="w-full flex justify-center px-4">
                 {/* <button
