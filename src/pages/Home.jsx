@@ -50,18 +50,33 @@ const fn_submit = async (values) => {
       email: values.username,
       password: values.password,
     });
-    // // Promise Toast
+
     if (response.code === 200) {
       const { token } = response;
       localStorage.setItem("siswa_token", token);
       localStorage.setItem("siswa_isLogin", true);
+      toast.success("Login successful!");
+    } else if (response.code === 401) {
+      toast.error("Invalid email or password!");
     } else {
-      toast.error("Something went wrong!");
+      toast.error(`Something went wrong!, code : ${response.code}`);
     }
     return true;
   } catch (error) {
     console.error(error);
-    toast.error("Something went wrong!");
+    if (error.message.includes("Network Error")) {
+      toast.error(
+        "Network error occurred, please check your internet connection and try again."
+      );
+    } else if (error.response && error.response.status === 404) {
+      toast.error(
+        `Code : ${error.response.status} , message: ${error.response.data.message}`
+      );
+    } else {
+      toast.error(
+        `code : ${error.response.status} , message: ${error.response.data.message}`
+      );
+    }
   }
 };
 
