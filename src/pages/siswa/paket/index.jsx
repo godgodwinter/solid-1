@@ -27,10 +27,13 @@ export const get_Mapel = async () => {
     const response = await ApiNode.get(
       `studiv3/siswa/ujianstudi/vless/get_aspekdetail_tersedia`
     );
+    // console.log(response);
     if (response.hasOwnProperty("data")) {
       if (response.data) {
         // console.log(response);
         return response.data;
+      } else {
+        return null;
       }
     } else {
       return null;
@@ -52,6 +55,11 @@ const PaketsoalData = () => {
     try {
       const res = await get_Mapel();
       if (res) {
+        setDataRes(res);
+        setLoading(false);
+      }
+      console.log(res);
+      if (res == null) {
         setDataRes(res);
         setLoading(false);
       }
@@ -87,6 +95,10 @@ const PaketsoalData = () => {
           <Match when={dataRes() && dataRes().length > 0}>
             {/* Tampilkan komponen PaketCard1 jika dataRes ada dan memiliki data */}
             <PaketCard1 data={dataRes()} />
+          </Match>
+          <Match when={dataRes() == null}>
+            {/* Tampilkan pesan error jika dataRes tidak ada atau kosong */}
+            <FailedComponent message={`Paket Tidak Tersedia`} />
           </Match>
           <Match>
             {/* Tampilkan pesan error jika dataRes tidak ada atau kosong */}

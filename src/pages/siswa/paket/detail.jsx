@@ -161,16 +161,16 @@ const PaketDetailCard = ({ data, navigateToSoal }) => {
     if (confirm("Apakah anda yakin memulai ujian mapel ini?")) {
       const timer = waktuUjian.count;
       if (timer < 1) {
-        let tgl_mulai = new Date();
+        let tgl_mulai = new Date(); //!unused after 231123 diganti dari servere
 
         let waktuTambahan = data?.waktu;
         // let waktuTambahan = 15;
-        let tgl_selesai = new Date(tgl_mulai.getTime() + waktuTambahan * 60000); // 60000 milidetik dalam satu menit
+        let tgl_selesai = new Date(tgl_mulai.getTime() + waktuTambahan * 60000); // 60000 milidetik dalam satu menit //!unused after 231123 diganti dari servere
 
         // const tgl_mulaiFormatted = formatDateToYYYYMMDDHHIIStr(tgl_mulai);
         // const tgl_selesaiFormatted = formatDateToYYYYMMDDHHIIStr(tgl_selesai);
-        const tgl_mulaiFormatted = tgl_mulai;
-        const tgl_selesaiFormatted = tgl_selesai;
+        const tgl_mulaiFormatted = tgl_mulai; //!unused after 231123 diganti dari servere
+        const tgl_selesaiFormatted = tgl_selesai; //!unused after 231123 diganti dari servere
 
         // console.log(
         //   `${tgl_mulaiFormatted},${tgl_selesaiFormatted},${tgl_mulai},${waktuTambahan}`
