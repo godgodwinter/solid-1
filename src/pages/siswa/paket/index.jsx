@@ -174,10 +174,11 @@ const PaketCard1 = (props) => {
             {(item, index) => {
               let ComponentToLoad;
 
+              // <Show when={get_dataTimer() <= 0}></Show>;
               if (
                 item.tgl_selesai !== null &&
                 (fn_get_sisa_waktu(item.tgl_selesai).detik > 0 ||
-                  item.status == "Selesai")
+                  item.status != "Selesai")
               ) {
                 ComponentToLoad = (
                   // <PaketItemComponent_Belum data={item} no={index() + 1} />
