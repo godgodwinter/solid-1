@@ -177,8 +177,8 @@ const PaketCard1 = (props) => {
               // <Show when={get_dataTimer() <= 0}></Show>;
               if (
                 item.tgl_selesai !== null &&
-                (fn_get_sisa_waktu(item.tgl_selesai).detik > 0 ||
-                  item.status != "Selesai")
+                fn_get_sisa_waktu(item.tgl_selesai).detik > 0 &&
+                item.status != "Selesai"
               ) {
                 ComponentToLoad = (
                   // <PaketItemComponent_Belum data={item} no={index() + 1} />
@@ -186,8 +186,8 @@ const PaketCard1 = (props) => {
                 );
               } else if (
                 item.tgl_selesai !== null &&
-                (fn_get_sisa_waktu(item.tgl_selesai).detik < 1 ||
-                  item.status == "Selesai")
+                fn_get_sisa_waktu(item.tgl_selesai).detik < 1 &&
+                item.status == "Selesai"
               ) {
                 ComponentToLoad = (
                   <>
