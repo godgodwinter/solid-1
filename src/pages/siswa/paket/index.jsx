@@ -157,6 +157,9 @@ const PaketIndex = () => {
 
 const PaketCard1 = (props) => {
   const data = props.data;
+  console.log("====================================");
+  console.log(data);
+  console.log("====================================");
   return (
     <>
       <div class="w-full mx-2 max-w-sm md:max-w-md lg:max-w-xl p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 ">
@@ -173,7 +176,8 @@ const PaketCard1 = (props) => {
 
               if (
                 item.tgl_selesai !== null &&
-                fn_get_sisa_waktu(item.tgl_selesai).detik > 0
+                (fn_get_sisa_waktu(item.tgl_selesai).detik > 0 ||
+                  item.status == "Selesai")
               ) {
                 ComponentToLoad = (
                   // <PaketItemComponent_Belum data={item} no={index() + 1} />
@@ -181,7 +185,8 @@ const PaketCard1 = (props) => {
                 );
               } else if (
                 item.tgl_selesai !== null &&
-                fn_get_sisa_waktu(item.tgl_selesai).detik < 1
+                (fn_get_sisa_waktu(item.tgl_selesai).detik < 1 ||
+                  item.status == "Selesai")
               ) {
                 ComponentToLoad = (
                   <>
