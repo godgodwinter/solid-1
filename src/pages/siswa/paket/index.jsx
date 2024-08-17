@@ -173,21 +173,25 @@ const PaketCard1 = (props) => {
           <For each={data} fallback={<div>Loading...</div>}>
             {(item, index) => {
               let ComponentToLoad;
+              // !belum
+              // <Show
+              //   when={
+              //     item.tgl_selesai !== null &&
+              //     fn_get_sisa_waktu(item.tgl_selesai).detik > 0 &&
+              //     item.status == "Aktif"
+              //   }
+              // >
+              //   <PaketItemComponent_Proses data={item} no={index() + 1} />
+              // </Show>;
+              // <Show when={data}>
+              //   <p>aa</p>
+              //   <PaketItemComponent_Selesai data={item} no={index() + 1} />
+              // </Show>;
 
-              // <Show when={get_dataTimer() <= 0}></Show>;
               if (
-                item.tgl_selesai !== null &&
-                fn_get_sisa_waktu(item.tgl_selesai).detik > 0 &&
-                item.status == "Aktif"
-              ) {
-                ComponentToLoad = (
-                  // <PaketItemComponent_Belum data={item} no={index() + 1} />
-                  <PaketItemComponent_Proses data={item} no={index() + 1} />
-                );
-              } else if (
                 (item.tgl_selesai !== null &&
                   fn_get_sisa_waktu(item.tgl_selesai).detik < 1) ||
-                item.status != "Selesai"
+                item.status == "Selesai"
               ) {
                 ComponentToLoad = (
                   <>
@@ -196,15 +200,32 @@ const PaketCard1 = (props) => {
                     <PaketItemComponent_Selesai data={item} no={index() + 1} />
                   </>
                 );
-              } else {
+              }
+              if (
+                item.tgl_selesai !== null &&
+                fn_get_sisa_waktu(item.tgl_selesai).detik > 0 &&
+                item.status != "Selesai"
+              ) {
                 ComponentToLoad = (
-                  <>
-                    {/* {`${isExamFinished(item?.tgl_selesai)}`} */}
-                    <PaketItemComponent_Belum data={item} no={index() + 1} />
-                    {/* <PaketItemComponent_Selesai data={item} no={index() + 1} /> */}
-                  </>
+                  // <PaketItemComponent_Belum data={item} no={index() + 1} />
+                  <PaketItemComponent_Proses data={item} no={index() + 1} />
                 );
               }
+              if (item.tgl_selesai == null) {
+                ComponentToLoad = (
+                  // <PaketItemComponent_Belum data={item} no={index() + 1} />
+                  <PaketItemComponent_Belum data={item} no={index() + 1} />
+                );
+              }
+              //  else {
+              //   ComponentToLoad = (
+              //     <>
+              //       {/* {`${isExamFinished(item?.tgl_selesai)}`} */}
+              //       <PaketItemComponent_Belum data={item} no={index() + 1} />
+              //       {/* <PaketItemComponent_Selesai data={item} no={index() + 1} /> */}
+              //     </>
+              //   );
+              // }
 
               return ComponentToLoad;
             }}
